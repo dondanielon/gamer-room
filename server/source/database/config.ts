@@ -3,7 +3,7 @@ import dotenv from 'dotenv'
 
 dotenv.config()
 
-export const databaseConnection = async () => {
+export async function databaseConnection() {
     try {
         mongoose.set('strictQuery', true)
 
