@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express'
-import { validationResult } from 'express-validator'
+import { validationResult, ValidationError } from 'express-validator'
 import bcrypt from 'bcrypt'
 import dotenv from 'dotenv'
 import { createUser } from '../../database/helpers'
@@ -11,7 +11,7 @@ class Authentication  {
 
     public static async signUp(req: Request, res: Response, next: NextFunction) {
         try {
-            const errors = validationResult(req)
+            const errors = validationResult(req).formatWith(({ msg }: ValidationError) => msg )
 
             if (!errors.isEmpty()){
                 return res.status(400).json({ errors: errors.array() })

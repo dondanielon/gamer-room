@@ -8,7 +8,7 @@ export const signUpRequestValidation = checkSchema({
             bail: true
         },
         isString: {
-            errorMessage: 'invalid input type',
+            errorMessage: 'invalid input type username',
             bail: true
         }
     }
