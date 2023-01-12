@@ -1,27 +1,26 @@
 import { Request, Response, NextFunction } from 'express'
+import { validationResult } from 'express-validator'
 import bcrypt from 'bcrypt'
 import dotenv from 'dotenv'
-import User from '../../database/schemas/user'
+import { createUser } from '../../database/helpers'
+import { SignUpI } from '../../types'
 
 dotenv.config()
-
-interface SignUpI {
-    username: string
-    firstName: string
-    lastName: string
-    email: string
-    password: string
-    birthDate: Date
-}
 
 class Authentication  {
 
     public static async signUp(req: Request, res: Response, next: NextFunction) {
         try {
+            const errors = validationResult(req)
+
+            if (!errors.isEmpty()){
+                return res.status(400).json({ errors: errors.array() })
+            }
+
             const body: SignUpI = req.body
             const encryptedPassword = await Authentication.encryptPwd(body.password)
 
-            const newUser = new User({
+            const response = createUser({
                 username: body.username,
                 firstName: body.firstName,
                 lastName: body.lastName,
@@ -30,11 +29,9 @@ class Authentication  {
                 birthDate: body.birthDate
             })
 
-            await newUser.save()
-
             // falta implementar logica para enviar un correo de confirmacion
 
-            return res.status(201).json({ message: 'user created' })
+            return res.status(201).json(response)
 
         } catch (error) {
             return next(error)
