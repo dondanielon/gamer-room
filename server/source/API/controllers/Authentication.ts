@@ -16,7 +16,7 @@ interface SignUpI {
 
 class Authentication  {
 
-    static async signUp(req: Request, res: Response, next: NextFunction) {
+    public static async signUp(req: Request, res: Response, next: NextFunction) {
         try {
             const body: SignUpI = req.body
             const encryptedPassword = await Authentication.encryptPwd(body.password)
@@ -32,6 +32,8 @@ class Authentication  {
 
             await newUser.save()
 
+            // falta implementar logica para enviar un correo de confirmacion
+
             return res.status(201).json({ message: 'user created' })
 
         } catch (error) {
@@ -39,7 +41,8 @@ class Authentication  {
         }
     }
 
-    // private functions
+    // funciones privadas usadas en los controladores publicos
+
     private static async encryptPwd(password: string) {
         try {
             const encryption = await bcrypt.hash(password, parseInt(process.env.BCRYPT_SALT_ROUNDS!))
