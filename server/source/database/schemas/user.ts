@@ -21,7 +21,8 @@ const User = mongoose.model(
         email: {
             type: String,
             required: true,
-            unique: true 
+            unique: true,
+            index: true
         },
         password: {
             type: String,
@@ -31,9 +32,9 @@ const User = mongoose.model(
             type: Date,
             required: true
         },
-        creationDate: {
+        createdAt: {
             type: Date,
-            default: new Date()
+            required: true
         }
     })
 )

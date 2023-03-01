@@ -1,13 +1,9 @@
 import { Router } from 'express'
-import Authentication from '../controllers/Authentication'
+import Authentication from '../controllers/authentication'
 import { signUpRequestValidation } from '../validators/authentication'
 
 const router = Router()
 
-router.post(
-    '/sign-up', 
-    signUpRequestValidation, 
-    Authentication.signUp
-)
+router.post('/sign-up', signUpRequestValidation, Authentication.signUp)
 
 export default router

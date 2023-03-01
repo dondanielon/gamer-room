@@ -1,13 +1,15 @@
 import User from './schemas/user'
-import { SignUpI } from '../types'
+import { SignUpI, ResponseI } from '../types'
 
-export async function createUser(user: SignUpI) {
+export async function createUser(user: SignUpI): Promise<ResponseI> {
     try {
-        if (!user) {
-            throw new Error('You must provide user as parameter')
-        }
+        if (!user) throw new Error('You must provide user as parameter')
 
-        const newUser = new User(user)
+        const newUser = new User({
+            ...user,
+            createdAt: new Date()
+        })
+
         await newUser.save()
 
         return {

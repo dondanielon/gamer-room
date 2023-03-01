@@ -4,5 +4,11 @@ export interface SignUpI {
     lastName: string
     email: string
     password: string
-    birthDate: Date
+    birthDate: string
+}
+
+export interface ResponseI {
+    message: string
+    data: any
+    error?: string
 }

@@ -20,13 +20,13 @@ class Authentication  {
             const body: SignUpI = req.body
             const encryptedPassword = await Authentication.encryptPwd(body.password)
 
-            const response = createUser({
+            const response = await createUser({
                 username: body.username,
                 firstName: body.firstName,
                 lastName: body.lastName,
                 email: body.email,
                 password: encryptedPassword,
-                birthDate: body.birthDate
+                birthDate: new Date(body.birthDate).toISOString()
             })
 
             // falta implementar logica para enviar un correo de confirmacion
