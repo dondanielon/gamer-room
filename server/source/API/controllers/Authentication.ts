@@ -3,7 +3,7 @@ import { validationResult, ValidationError } from 'express-validator'
 import bcrypt from 'bcrypt'
 import dotenv from 'dotenv'
 import { createUser, findUserByEmail, findUserWithRefreshToken } from '../../database/helpers'
-import { ISignUp, ISignIn, IResponse, IUser, IRequestUser } from '../../types'
+import { ISignUp, ISignIn, IResponse, IUser } from '../../types'
 import jwt from 'jsonwebtoken'
 
 dotenv.config()
