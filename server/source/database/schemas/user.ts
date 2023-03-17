@@ -35,6 +35,15 @@ const User = mongoose.model(
         createdAt: {
             type: Date,
             required: true
+        },
+        isConfirmed: {
+            type: Boolean,
+            required: true,
+            default: false
+        },
+        refreshToken: {
+            type: String,
+            select: false
         }
     })
 )

@@ -5,5 +5,7 @@ import { signUpRequestValidation } from '../validations/authentication'
 const router = Router()
 
 router.post('/sign-up', signUpRequestValidation, Authentication.signUp)
+router.post('/sign-in', Authentication.signIn)
+router.get('/refresh', Authentication.handleRefreshToken)
 
 export default router
