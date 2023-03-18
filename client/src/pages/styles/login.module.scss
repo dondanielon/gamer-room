@@ -1,0 +1,13 @@
+@import '@/pages/styles/variables.scss';
+
+.container {
+    width: 100vw;
+    padding: 20px;
+}
+
+@media (min-width: 375px) {
+    .container {
+        width: 375px;
+    }
+}
+
