@@ -12,7 +12,7 @@ class Authentication  {
 
     public static async signUp(req: Request, res: Response, next: NextFunction) {
         try {
-            const errors = validationResult(req).formatWith(({ msg }: ValidationError) => msg )
+            const errors = validationResult(req).formatWith(({ msg }: ValidationError) => msg)
 
             if (!errors.isEmpty()){
                 return res.status(400).json({ errors: errors.array() })
@@ -35,7 +35,7 @@ class Authentication  {
                 data: null
             }
 
-            // send email after sign up for confirmation
+            // send email confirmation after sign up 
 
             return res.status(201).json(response)
 
@@ -78,13 +78,71 @@ class Authentication  {
                 { expiresIn: '30d' }
             )
 
-            res.cookie('refreshToken', refreshToken, { httpOnly: true, maxAge: 30 * 24 * 60 * 60 * 1000 })
+            res.cookie(
+                'refreshToken', 
+                refreshToken, 
+                { 
+                    httpOnly: true, 
+                    maxAge: 30 * 24 * 60 * 60 * 1000, 
+                    secure: true,
+                    sameSite: 'none'
+                }
+            )
             user.refreshToken = refreshToken
             await user.save()
 
             response.message = 'user authenticated'
             response.data = accessToken
 
+            return res.status(200).json(response)
+
+        } catch (error) {
+            return next(error)
+        }
+    }
+
+    public static async signOut(req: Request, res: Response, next: NextFunction) {
+        try {
+            const cookies = req.cookies
+            const response: IResponse = {
+                message: '',
+                data: null
+            }
+
+            if (!cookies?.refreshToken) {
+                response.message = 'missing cookies'
+                return res.status(400).json(response)
+            }
+
+            const refreshToken = cookies.refreshToken
+            const user = await findUserWithRefreshToken(refreshToken)
+
+            if (!user) {
+                res.clearCookie(
+                    'refreshToken', 
+                    { 
+                        httpOnly: true, 
+                        secure: true,
+                        sameSite: 'none'
+                    }
+                )
+
+                response.message = 'unavailable refresh token'
+                return res.status(404).json(response)
+            }
+
+            user.refreshToken = undefined
+            await user.save()
+            res.clearCookie(
+                'refreshToken', 
+                {  
+                    httpOnly: true, 
+                    secure: true,
+                    sameSite: 'none'
+                }
+            )
+
+            response.message = 'user signed out'
             return res.status(200).json(response)
 
         } catch (error) {
@@ -135,7 +193,6 @@ class Authentication  {
                     return res.status(200).json(response)
                 }
             )
-
 
         } catch (error) {
             return next(error)
