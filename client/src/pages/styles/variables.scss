@@ -1,0 +1,13 @@
+$background-color: #1a1b22;
+$primary-color: 0px 4px 20px rgba(0, 0, 0, 0.1);
+$input-background: rgb(47, 47, 60);
+$input-placeholder: rgb(113, 113, 132);
+$input-text-color: rgb(169, 169, 195);
+
+:export {
+    background-color: $background-color;
+    primary-color: $primary-color;
+    input-background: $input-background;
+    input-placeholder: $input-placeholder;
+    input-text-color: $input-text-color;
+}
