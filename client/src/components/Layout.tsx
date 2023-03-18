@@ -13,7 +13,7 @@ export default function Layout(props: LayoutProps) {
             }
         >
             <section>
-                {props.children}
+                
             </section>
         </main>
     )
