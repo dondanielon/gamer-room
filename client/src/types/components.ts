@@ -8,6 +8,10 @@ export interface LayoutProps {
 
 export interface TextInputProps {
     placeholder: string
+    value?: string
+    name?: string
+    onChange?: (event: React.ChangeEvent<HTMLInputElement>) => void
     icon: JSX.Element
     type: 'text' | 'password'
+    autoComplete?: 'on' | 'off'
 }

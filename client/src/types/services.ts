@@ -1,4 +1,4 @@
-export interface IAPIResponse {
-    message: string
-    data: any
+export interface IUserCredentials {
+    email: string
+    password: any
 }

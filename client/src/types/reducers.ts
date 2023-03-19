@@ -12,4 +12,5 @@ export interface IAuthInitialState {
         message: null | string
     }
     isUserLoggedIn: null | boolean
+    accessToken: null | string
 }
