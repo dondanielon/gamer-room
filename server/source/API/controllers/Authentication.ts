@@ -174,10 +174,12 @@ class Authentication  {
             return jwt.verify(
                 refreshToken,
                 process.env.REFRESH_TOKEN_SECRET!,
-                (err: jwt.VerifyErrors | null, decoded: any ) => {
+                async (err: jwt.VerifyErrors | null, decoded: any ) => {
 
                     if (err || user._id.toString() !== decoded._id) {
                         response.message = 'invalid refresh token'
+                        user.refreshToken = undefined
+                        await user.save()
                         return res.status(403).json(response)
                     }
 

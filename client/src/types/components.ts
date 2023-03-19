@@ -15,3 +15,8 @@ export interface TextInputProps {
     type: 'text' | 'password'
     autoComplete?: 'on' | 'off'
 }
+
+export interface SignButtonProps {
+    text: string
+    requestStatus: "idle" | "loading" | "succeeded" | "failed"
+}

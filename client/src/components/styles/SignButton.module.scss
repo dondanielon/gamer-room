@@ -1,0 +1,25 @@
+@import '@/pages/styles/variables.scss';
+
+.main {
+    cursor: pointer;
+    background-color: $green-primary;
+    color: $white-primary;
+    padding: 0 10px;
+    height: 40px;
+    border: none;
+    letter-spacing: 0.9px;
+    font-size: 16px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: 0.1s;
+
+    &:hover {
+        background-color: $green-secondary;
+    }
+
+    &:active {
+        transform: scale(0.96);
+    }
+}

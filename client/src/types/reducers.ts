@@ -13,4 +13,5 @@ export interface IAuthInitialState {
     }
     isUserLoggedIn: null | boolean
     accessToken: null | string
+    redirectAfterSignIn: string | null
 }

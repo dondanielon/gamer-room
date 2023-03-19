@@ -3,6 +3,9 @@ $primary-color: 0px 4px 20px rgba(0, 0, 0, 0.1);
 $input-background: rgb(47, 47, 60);
 $input-placeholder: rgb(113, 113, 132);
 $input-text-color: rgb(169, 169, 195);
+$green-primary: rgb(8, 174, 102);
+$green-secondary: rgb(8, 149, 88);
+$white-primary: #d0d0d0;
 
 :export {
     background-color: $background-color;
@@ -10,4 +13,7 @@ $input-text-color: rgb(169, 169, 195);
     input-background: $input-background;
     input-placeholder: $input-placeholder;
     input-text-color: $input-text-color;
+    green-primary: $green-primary;
+    white-primary: $white-primary;
+    green-secondary: $green-secondary;
 }
