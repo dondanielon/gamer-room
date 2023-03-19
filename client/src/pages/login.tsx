@@ -1,4 +1,4 @@
-import Layout from "@/components/Layout"
+import Layout from "@/components/Layout" 
 import LoginForm from "@/components/LoginForm"
 import style from '@/pages/styles/login.module.scss'
 

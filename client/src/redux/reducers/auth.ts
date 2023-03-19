@@ -1,6 +1,7 @@
 import { createSlice, PayloadAction, createAsyncThunk } from '@reduxjs/toolkit'
 import { IAuthInitialState } from '@/types/reducers'
-import { IAPIResponse } from '@/types/services'
+import { IUserCredentials } from '@/types/services'
+import { signInService } from '@/services/authentication'
 
 const initialState: IAuthInitialState = {
     signIn: {
@@ -15,11 +16,13 @@ const initialState: IAuthInitialState = {
         status: 'idle',
         message: null
     },
-    isUserLoggedIn: null
+    isUserLoggedIn: null,
+    accessToken: null
 }
 
-export const signIn = createAsyncThunk('/sing-in', async (response: IAPIResponse, _thunkAPI) => {
-    
+export const signIn = createAsyncThunk('/sing-in', async (credentials: IUserCredentials, _thunkAPI) => {
+    const response = await signInService(credentials)
+    return response
 })
 
 export const authSlice = createSlice({
@@ -28,6 +31,9 @@ export const authSlice = createSlice({
     reducers: {
         setIsUserLoggeIn: (state, action: PayloadAction<boolean>) => {
             state.isUserLoggedIn = action.payload
+        },
+        setAccessToken: (state, action: PayloadAction<string>) => {
+            state.accessToken = action.payload
         }
     },
 
@@ -40,11 +46,15 @@ export const authSlice = createSlice({
         })
 
         builder.addCase(signIn.rejected, (state, action) => {
-            
+            state.signIn.status = "failed"
+            state.signIn.message = action.error.message!
         }) 
 
         builder.addCase(signIn.fulfilled, (state, action) => {           
-            
+            state.signIn.status = "succeeded"
+            state.signIn.message = action.payload.message
+            state.isUserLoggedIn = true
+            state.accessToken = action.payload.data
         })
     }
 })
