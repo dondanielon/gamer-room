@@ -30,6 +30,7 @@ export interface IUser {
     birthDate?: string
     createdAt?: string
     isConfirmed?: boolean
+    refreshToken?: string
     __v?: number
 }
 
