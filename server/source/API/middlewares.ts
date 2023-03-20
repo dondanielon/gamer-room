@@ -13,7 +13,7 @@ export function verifyJWT(req: ICustomRequest, res: Response, next: NextFunction
     const authHeader = req.headers['authorization']
 
     if (!authHeader) {
-        response.message = 'unauthorized missig authorization header'
+        response.message = 'unauthorized missig token'
         return res.status(401).json(response)
     }
 
