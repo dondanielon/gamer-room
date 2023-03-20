@@ -74,7 +74,7 @@ class Authentication  {
 
             const refreshToken = jwt.sign(
                 Authentication.formatUserToPublic(user.toObject()), 
-                process.env.ACCESS_TOKEN_SECRET!,
+                process.env.REFRESH_TOKEN_SECRET!,
                 { expiresIn: '30d' }
             )
 
@@ -171,7 +171,7 @@ class Authentication  {
                 return res.status(403).json(response)
             }
 
-            return jwt.verify(
+            jwt.verify(
                 refreshToken,
                 process.env.REFRESH_TOKEN_SECRET!,
                 async (err: jwt.VerifyErrors | null, decoded: any ) => {

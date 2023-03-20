@@ -5,15 +5,14 @@ const axios = axiosConfig.instance
 
 export async function signInService(credentials: IUserCredentials) {
     try {
-        const { data: response } = await axios.post(
+        const { data } = await axios.post(
             '/authentication/sign-in',
             JSON.stringify(credentials)
         )
 
-        return response
+        return data
 
     } catch (error: any) {
-        console.log(error.response)
         if (!error.response){
             throw new Error('no server response')
         } else if (error.response?.status === 401) {
@@ -23,5 +22,16 @@ export async function signInService(credentials: IUserCredentials) {
         } else {
             throw new Error('something went wrong')
         }
+    }
+}
+
+export async function refreshTokenService() {
+    try {
+        const { data } = await axios.get(
+            '/authentication/refresh'
+        )
+        return data
+    } catch (error) {
+        console.log(error)
     }
 }

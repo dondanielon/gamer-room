@@ -63,5 +63,5 @@ export const authSlice = createSlice({
     }
 })
 
-export const { setIsUserLoggeIn, setRedirectAfterSignIn } = authSlice.actions
+export const { setIsUserLoggeIn, setRedirectAfterSignIn, setAccessToken } = authSlice.actions
 export default authSlice.reducer
