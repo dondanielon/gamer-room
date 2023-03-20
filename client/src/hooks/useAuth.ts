@@ -1,4 +1,4 @@
-import { setRedirectAfterSignIn, setIsUserLoggeIn } from "@/redux/reducers/auth"
+import { setRedirectAfterSignIn, setIsUserLoggeIn, setAccessToken } from "@/redux/reducers/auth"
 import { RootState } from "@/redux/store"
 import { IUserCredentials } from "@/types/services"
 import {  useSelector, useDispatch } from "react-redux"
@@ -17,6 +17,10 @@ export default function useAuth() {
         return dispatch(setIsUserLoggeIn(status))
     }
 
+    const setToken = (token: string) => {
+        return dispatch(setAccessToken(token))
+    }
+
     const setRedirectPath = (path: string) => {
         return dispatch(setRedirectAfterSignIn(path))
     }
@@ -31,7 +35,9 @@ export default function useAuth() {
         signUpState,
         isUserLoggedIn,
         redirectAfterSignIn,
+        accessToken,
         setAuthStatus,
+        setToken,
         setRedirectPath,
         signIn
      }
