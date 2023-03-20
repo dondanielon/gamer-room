@@ -69,13 +69,13 @@ class Authentication  {
             const accessToken = jwt.sign(
                 Authentication.formatUserToPublic(user.toObject()), 
                 process.env.ACCESS_TOKEN_SECRET!,
-                { expiresIn: '60m' }
+                { expiresIn: '365d' }
             )
 
             const refreshToken = jwt.sign(
                 Authentication.formatUserToPublic(user.toObject()), 
                 process.env.REFRESH_TOKEN_SECRET!,
-                { expiresIn: '30d' }
+                { expiresIn: '365d' }
             )
 
             res.cookie(
@@ -83,7 +83,7 @@ class Authentication  {
                 refreshToken, 
                 { 
                     httpOnly: true, 
-                    maxAge: 30 * 24 * 60 * 60 * 1000, 
+                    maxAge: 365 * 24 * 60 * 60 * 1000, 
                     secure: true,
                     sameSite: 'none'
                 }
@@ -94,7 +94,7 @@ class Authentication  {
             response.message = 'user authenticated'
             response.data = accessToken
 
-            return res.status(200).json(response)
+            return res.status(200).json({ ...response, credentials: Authentication.formatUserToPublic(user.toObject()) })
 
         } catch (error) {
             return next(error)
@@ -192,13 +192,17 @@ class Authentication  {
                     response.message = 'token refreshed'
                     response.data = accessToken
 
-                    return res.status(200).json(response)
+                    return res.status(200).json({ ...response, credentials: decoded })
                 }
             )
 
         } catch (error) {
             return next(error)
         }
+    }
+
+    public static async test(_req: Request, res: Response, _next: NextFunction) {
+        return res.status(200).json('protected route')
     }
 
     // private functions for controllers
@@ -219,6 +223,7 @@ class Authentication  {
         delete user?.createdAt
         delete user?.isConfirmed
         delete user?.birthDate
+        delete user?.refreshToken
 
         return user
     }

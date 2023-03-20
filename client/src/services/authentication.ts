@@ -31,7 +31,13 @@ export async function refreshTokenService() {
             '/authentication/refresh'
         )
         return data
-    } catch (error) {
-        console.log(error)
+    } catch (error: any) {
+        if (!error.response){
+            throw new Error('no server response')
+        } else if (error.response?.status === 403) {
+            throw new Error('token failed')
+        } else {
+            throw new Error('something went wrong')
+        }
     }
 }

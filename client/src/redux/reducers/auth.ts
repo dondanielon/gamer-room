@@ -1,28 +1,38 @@
 import { createSlice, PayloadAction, createAsyncThunk } from '@reduxjs/toolkit'
 import { IAuthInitialState } from '@/types/reducers'
 import { IUserCredentials } from '@/types/services'
-import { signInService } from '@/services/authentication'
+import { refreshTokenService, signInService } from '@/services/authentication'
 
 const initialState: IAuthInitialState = {
-    signIn: {
+    signInState: {
         status: 'idle', 
         message: null
     },
-    signUp: {
+    signUpState: {
         status: 'idle', 
         message: null
     },
-    signOut: {
+    signOutState: {
         status: 'idle',
         message: null
     },
+    refreshTokenState: {
+        status: 'idle',
+        message: null
+    },
+    credentials: null,
     isUserLoggedIn: null,
     accessToken: null,
     redirectAfterSignIn: null
 }
 
-export const signInThunk = createAsyncThunk('/sing-in', async (credentials: IUserCredentials, _thunkAPI) => {
+export const signInThunk = createAsyncThunk('/sing-in', async (credentials: IUserCredentials) => {
     const response = await signInService(credentials)
+    return response
+})
+
+export const refreshTokenThunk = createAsyncThunk('/refresh', async () => {
+    const response = await refreshTokenService()
     return response
 })
 
@@ -45,20 +55,42 @@ export const authSlice = createSlice({
     extraReducers: (builder) => {
         //SIGN IN CASES
         builder.addCase(signInThunk.pending, (state, action) => {
-            state.signIn.status = 'loading'
-            state.signIn.message = null
+            state.signInState.status = 'loading'
+            state.signInState.message = null
         })
 
         builder.addCase(signInThunk.rejected, (state, action) => {
-            state.signIn.status = "failed"
-            state.signIn.message = action.error.message!
+            state.signInState.status = "failed"
+            state.signInState.message = action.error.message!
         }) 
 
         builder.addCase(signInThunk.fulfilled, (state, action) => {           
-            state.signIn.status = "succeeded"
-            state.signIn.message = action.payload.message
+            state.signInState.status = "succeeded"
+            state.signInState.message = action.payload.message
+            state.credentials = action.payload.credentials
             state.isUserLoggedIn = true
             state.accessToken = action.payload.data
+        })
+        //REFRESH TOKEN CASES
+        builder.addCase(refreshTokenThunk.pending, (state, action) => {
+            state.refreshTokenState.status = 'loading'
+            state.refreshTokenState.message = null
+        })
+
+        builder.addCase(refreshTokenThunk.rejected, (state, action) => {
+            state.refreshTokenState.status = "failed"
+            state.refreshTokenState.message = action.error.message!
+            state.isUserLoggedIn = true
+            state.accessToken = null
+            state.credentials = null
+        }) 
+
+        builder.addCase(refreshTokenThunk.fulfilled, (state, action) => {           
+            state.refreshTokenState.status = "succeeded"
+            state.refreshTokenState.message = action.payload.message
+            state.isUserLoggedIn = true
+            state.accessToken = action.payload.data
+            state.credentials = action.payload.credentials
         })
     }
 })
