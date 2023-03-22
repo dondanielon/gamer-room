@@ -1,4 +1,4 @@
-import Layout from "@/components/Layout";
+import DashboardLayout from "@/components/DashboardLayout";
 import Loading from "@/components/Loading";
 import useProtect from "@/hooks/useProtect";
 
@@ -9,10 +9,10 @@ export default function Dashboard() {
         ? (
             <Loading />
         ) : (
-            <Layout horizontalCenter={true} verticalCenter={true}>
+            <DashboardLayout horizontalCenter={true} verticalCenter={false}>
                 <div>
                      Dashboard
                 </div>
-            </Layout>
+            </DashboardLayout>
         )       
 }
