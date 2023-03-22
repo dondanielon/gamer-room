@@ -9,7 +9,8 @@ import SignButton from './SignButton'
 
 export default function LoginForm() {
     const router = useRouter()
-    const { signInState, redirectAfterSignIn, signIn, isUserLoggedIn } = useAuth()
+    const { signInState, redirectAfterSignIn, signIn } = useAuth()
+    
     const [input, setInput] = useState({
         email: '',
         password: ''
