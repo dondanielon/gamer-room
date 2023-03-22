@@ -3,7 +3,7 @@ import { useEffect, useState } from "react"
 import Loading from "./Loading"
 
 export default function AuthProvider({children}: {children: JSX.Element | JSX.Element[]}) {
-    const { accessToken, refreshToken } = useAuth()
+    const { accessToken, refreshToken, isUserLoggedIn, credentials } = useAuth()
     const [isLoading, setIsLoading] = useState(true)
 
     const verifyRefreshToken = async () => {
@@ -17,7 +17,7 @@ export default function AuthProvider({children}: {children: JSX.Element | JSX.El
     }
 
     useEffect(() => {
-        !accessToken ? verifyRefreshToken() : setIsLoading(false)
+        !accessToken || !isUserLoggedIn || !credentials ? verifyRefreshToken() : setIsLoading(false)
     }, [])
 
     return (
