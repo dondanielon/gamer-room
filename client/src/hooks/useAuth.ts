@@ -12,7 +12,8 @@ export default function useAuth() {
         signUpState,
         isUserLoggedIn,
         redirectAfterSignIn,
-        accessToken
+        accessToken,
+        credentials
     } = useSelector(({ auth }: RootState) => auth )
 
     const setAuthStatus = (status: boolean) => {
@@ -27,11 +28,11 @@ export default function useAuth() {
         return dispatch(setRedirectAfterSignIn(path))
     }
 
-    const signIn = async (credentials: IUserCredentials) => {
+    const signIn = (credentials: IUserCredentials) => {
         return dispatch(signInThunk(credentials))
     }
 
-    const refreshToken = async () => {
+    const refreshToken = () => {
         return dispatch(refreshTokenThunk())
     }
 
@@ -46,6 +47,7 @@ export default function useAuth() {
         setToken,
         setRedirectPath,
         signIn,
-        refreshToken
+        refreshToken,
+        credentials
      }
 }
