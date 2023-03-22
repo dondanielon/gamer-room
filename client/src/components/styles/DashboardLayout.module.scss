@@ -1,0 +1,10 @@
+@import '@/pages/styles/variables.scss';
+
+.main {
+    position: relative;
+    display: flex;
+    width: 100vw;
+    height: 100vh;
+    background-color: $background-color;
+    color: $input-text-color;
+}
