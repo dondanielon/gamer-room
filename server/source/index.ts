@@ -1,12 +1,12 @@
-import app from './API/app'
-import { databaseConnection } from './database/config'
-import dotenv from 'dotenv'
+import app from "./API/app";
+import { databaseConnection } from "./database/config";
+import dotenv from "dotenv";
 
-dotenv.config()
+dotenv.config();
 
-const PORT = process.env.PORT || 3000
+const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, async () => {
-    await databaseConnection()
-    console.log(`Server listening on port ${PORT}`)
-})
+    await databaseConnection();
+    console.log(`Server listening on port ${PORT}`);
+});

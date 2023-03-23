@@ -8,18 +8,25 @@ import jwt from 'jsonwebtoken'
 
 dotenv.config()
 
-class Authentication  {
-
-    public static async signUp(req: Request, res: Response, next: NextFunction) {
+class Authentication {
+    public static async signUp(
+        req: Request,
+        res: Response,
+        next: NextFunction
+    ) {
         try {
-            const errors = validationResult(req).formatWith(({ msg }: ValidationError) => msg)
+            const errors = validationResult(req).formatWith(
+                ({ msg }: ValidationError) => msg
+            );
 
-            if (!errors.isEmpty()){
-                return res.status(400).json({ errors: errors.array() })
+            if (!errors.isEmpty()) {
+                return res.status(400).json({ errors: errors.array() });
             }
 
-            const body: ISignUp = req.body
-            const encryptedPassword = await Authentication.encryptPassword(body.password)
+            const body: ISignUp = req.body;
+            const encryptedPassword = await Authentication.encryptPassword(
+                body.password
+            );
 
             await createUser({
                 username: body.username,
@@ -27,205 +34,220 @@ class Authentication  {
                 lastName: body.lastName,
                 email: body.email,
                 password: encryptedPassword,
-                birthDate: new Date(body.birthDate).toISOString()
-            })
+                birthDate: new Date(body.birthDate).toISOString(),
+            });
 
             const response: IResponse = {
-                message: 'user created',
-                data: null
-            }
+                message: "user created",
+                data: null,
+            };
 
-            // send email confirmation after sign up 
+            // send email confirmation after sign up
 
-            return res.status(201).json(response)
-
+            return res.status(201).json(response);
         } catch (error) {
-            return next(error)
+            return next(error);
         }
     }
 
-    public static async signIn(req: Request, res: Response, next: NextFunction) {
+    public static async signIn(
+        req: Request,
+        res: Response,
+        next: NextFunction
+    ) {
         try {
-            const body: ISignIn = req.body
-            const user = await findUserByEmail(body.email)
+            const body: ISignIn = req.body;
+            const user = await findUserByEmail(body.email);
 
             const response: IResponse = {
-                message: '',
-                data: null
-            }
+                message: "",
+                data: null,
+            };
 
             if (!user) {
-                response.message = 'email or password incorrect'
-                return res.status(401).json(response)
+                response.message = "email or password incorrect";
+                return res.status(401).json(response);
             }
 
-            const isPasswordValid = await bcrypt.compare(body.password, user.password)
+            const isPasswordValid = await bcrypt.compare(
+                body.password,
+                user.password
+            );
 
             if (!isPasswordValid) {
-                response.message = 'email or password incorrect'
-                return res.status(401).json(response)
+                response.message = "email or password incorrect";
+                return res.status(401).json(response);
             }
 
             const accessToken = jwt.sign(
-                Authentication.formatUserToPublic(user.toObject()), 
+                Authentication.formatUserToPublic(user.toObject()),
                 process.env.ACCESS_TOKEN_SECRET!,
-                { expiresIn: '365d' }
-            )
+                { expiresIn: "365d" }
+            );
 
             const refreshToken = jwt.sign(
-                Authentication.formatUserToPublic(user.toObject()), 
+                Authentication.formatUserToPublic(user.toObject()),
                 process.env.REFRESH_TOKEN_SECRET!,
-                { expiresIn: '365d' }
-            )
+                { expiresIn: "365d" }
+            );
 
-            res.cookie(
-                'refreshToken', 
-                refreshToken, 
-                { 
-                    httpOnly: true, 
-                    maxAge: 365 * 24 * 60 * 60 * 1000, 
-                    secure: true,
-                    sameSite: 'none'
-                }
-            )
-            user.refreshToken = refreshToken
-            await user.save()
+            res.cookie("refreshToken", refreshToken, {
+                httpOnly: true,
+                maxAge: 365 * 24 * 60 * 60 * 1000,
+                secure: true,
+                sameSite: "none",
+            });
+            user.refreshToken = refreshToken;
+            await user.save();
 
-            response.message = 'user authenticated'
-            response.data = accessToken
+            response.message = "user authenticated";
+            response.data = accessToken;
 
-            return res.status(200).json({ ...response, credentials: Authentication.formatUserToPublic(user.toObject()) })
-
+            return res
+                .status(200)
+                .json({
+                    ...response,
+                    credentials: Authentication.formatUserToPublic(
+                        user.toObject()
+                    ),
+                });
         } catch (error) {
-            return next(error)
+            return next(error);
         }
     }
 
-    public static async signOut(req: Request, res: Response, next: NextFunction) {
+    public static async signOut(
+        req: Request,
+        res: Response,
+        next: NextFunction
+    ) {
         try {
-            const cookies = req.cookies
+            const cookies = req.cookies;
             const response: IResponse = {
-                message: '',
-                data: null
-            }
+                message: "",
+                data: null,
+            };
 
             if (!cookies?.refreshToken) {
-                response.message = 'missing cookies'
-                return res.status(400).json(response)
+                response.message = "missing cookies";
+                return res.status(400).json(response);
             }
 
-            const refreshToken = cookies.refreshToken
-            const user = await findUserWithRefreshToken(refreshToken)
+            const refreshToken = cookies.refreshToken;
+            const user = await findUserWithRefreshToken(refreshToken);
 
             if (!user) {
-                res.clearCookie(
-                    'refreshToken', 
-                    { 
-                        httpOnly: true, 
-                        secure: true,
-                        sameSite: 'none'
-                    }
-                )
+                res.clearCookie("refreshToken", {
+                    httpOnly: true,
+                    secure: true,
+                    sameSite: "none",
+                });
 
-                response.message = 'unavailable refresh token'
-                return res.status(404).json(response)
+                response.message = "unavailable refresh token";
+                return res.status(404).json(response);
             }
 
-            user.refreshToken = undefined
-            await user.save()
-            res.clearCookie(
-                'refreshToken', 
-                {  
-                    httpOnly: true, 
-                    secure: true,
-                    sameSite: 'none'
-                }
-            )
+            user.refreshToken = undefined;
+            await user.save();
+            res.clearCookie("refreshToken", {
+                httpOnly: true,
+                secure: true,
+                sameSite: "none",
+            });
 
-            response.message = 'user signed out'
-            return res.status(200).json(response)
-
+            response.message = "user signed out";
+            return res.status(200).json(response);
         } catch (error) {
-            return next(error)
+            return next(error);
         }
     }
 
-    public static async handleRefreshToken(req: Request, res: Response, next: NextFunction) {
+    public static async handleRefreshToken(
+        req: Request,
+        res: Response,
+        next: NextFunction
+    ) {
         try {
-            const cookies = req.cookies
+            const cookies = req.cookies;
             const response: IResponse = {
-                message: '',
-                data: null
-            }
+                message: "",
+                data: null,
+            };
 
             if (!cookies?.refreshToken) {
-                response.message = 'unauthorized missing cookies'
-                return res.status(401).json(response)
+                response.message = "unauthorized missing cookies";
+                return res.status(401).json(response);
             }
 
-            const refreshToken = cookies.refreshToken
-            const user = await findUserWithRefreshToken(refreshToken)
+            const refreshToken = cookies.refreshToken;
+            const user = await findUserWithRefreshToken(refreshToken);
 
             if (!user) {
-                response.message = 'invalid refresh token'
-                return res.status(403).json(response)
+                response.message = "invalid refresh token";
+                return res.status(403).json(response);
             }
 
             jwt.verify(
                 refreshToken,
                 process.env.REFRESH_TOKEN_SECRET!,
-                async (err: jwt.VerifyErrors | null, decoded: any ) => {
-
+                async (err: jwt.VerifyErrors | null, decoded: any) => {
                     if (err || user._id.toString() !== decoded._id) {
-                        response.message = 'invalid refresh token'
-                        user.refreshToken = undefined
-                        await user.save()
-                        return res.status(403).json(response)
+                        response.message = "invalid refresh token";
+                        user.refreshToken = undefined;
+                        await user.save();
+                        return res.status(403).json(response);
                     }
 
                     const accessToken = jwt.sign(
-                        Authentication.formatUserToPublic(user.toObject()), 
+                        Authentication.formatUserToPublic(user.toObject()),
                         process.env.ACCESS_TOKEN_SECRET!,
-                        { expiresIn: '60m' }
-                    )
+                        { expiresIn: "60m" }
+                    );
 
-                    response.message = 'token refreshed'
-                    response.data = accessToken
+                    response.message = "token refreshed";
+                    response.data = accessToken;
 
-                    return res.status(200).json({ ...response, credentials: decoded })
+                    return res
+                        .status(200)
+                        .json({ ...response, credentials: decoded });
                 }
-            )
-
+            );
         } catch (error) {
-            return next(error)
+            return next(error);
         }
     }
 
-    public static async test(_req: Request, res: Response, _next: NextFunction) {
-        return res.status(200).json('protected route')
+    public static async test(
+        _req: Request,
+        res: Response,
+        _next: NextFunction
+    ) {
+        return res.status(200).json("protected route");
     }
 
     // private functions for controllers
 
     private static async encryptPassword(password: string) {
         try {
-            const encryption = await bcrypt.hash(password, parseInt(process.env.BCRYPT_SALT_ROUNDS!))
-            return encryption
-
+            const encryption = await bcrypt.hash(
+                password,
+                parseInt(process.env.BCRYPT_SALT_ROUNDS!)
+            );
+            return encryption;
         } catch (error) {
-            throw error
+            throw error;
         }
     }
 
     private static formatUserToPublic(user: IUser) {
-        delete user?.password
-        delete user?.__v
-        delete user?.createdAt
-        delete user?.isConfirmed
-        delete user?.birthDate
-        delete user?.refreshToken
+        delete user?.password;
+        delete user?.__v;
+        delete user?.createdAt;
+        delete user?.isConfirmed;
+        delete user?.birthDate;
+        delete user?.refreshToken;
 
-        return user
+        return user;
     }
 }
 
