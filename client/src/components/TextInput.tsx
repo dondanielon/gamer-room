@@ -1,12 +1,10 @@
-import { TextInputProps } from "@/types/components"
-import style from '@/components/styles/TextInput.module.scss'
+import { TextInputProps } from "@/types/components";
+import style from "@/components/styles/TextInput.module.scss";
 
 export default function TextInput(props: TextInputProps) {
     return (
         <div className={style.main}>
-            <div className={style.icon}>
-                {props.icon}
-            </div>
+            <div className={style.icon}>{props.icon}</div>
             <input
                 type={props.type}
                 className={style.input}
@@ -14,8 +12,8 @@ export default function TextInput(props: TextInputProps) {
                 name={props.name}
                 value={props.value}
                 onChange={props.onChange}
-                autoComplete={props.autoComplete ? props.autoComplete : 'off'}
+                autoComplete={props.autoComplete ? props.autoComplete : "off"}
             />
         </div>
-    )
+    );
 }

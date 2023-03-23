@@ -1,5 +1,5 @@
 import Layout from "./Layout";
-import { ColorRing } from  'react-loader-spinner'
+import { ColorRing } from "react-loader-spinner";
 
 export default function Loading() {
     return (
@@ -11,8 +11,8 @@ export default function Loading() {
                 ariaLabel="blocks-loading"
                 wrapperStyle={{}}
                 wrapperClass="blocks-wrapper"
-                colors={['#a9a9c3', '#a9a9c3', '#a9a9c3', '#a9a9c3', '#a9a9c3']}
+                colors={["#a9a9c3", "#a9a9c3", "#a9a9c3", "#a9a9c3", "#a9a9c3"]}
             />
         </Layout>
-    )
+    );
 }
