@@ -12,7 +12,7 @@ const User = mongoose.model(
         birthDate: { type: Date, required: true },
         createdAt: { type: Date, required: true },
         isConfirmed: { type: Boolean, required: true, default: false },
-        refreshToken: { type: String, select: false }
+        refreshToken: { type: String, select: false, unique: true, index: true }
     })
 )
 
