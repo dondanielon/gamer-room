@@ -62,16 +62,16 @@ export const authSlice = createSlice({
         });
 
         builder.addCase(signInThunk.rejected, (state, action) => {
-            state.signInState.status = "failed";
-            state.signInState.message = action.error.message!;
+            state.signInState.status = "failed"
+            state.signInState.message = "signin failed"
         });
 
         builder.addCase(signInThunk.fulfilled, (state, action) => {
-            state.signInState.status = "succeeded";
-            state.signInState.message = action.payload.message;
-            state.credentials = action.payload.credentials;
-            state.isUserLoggedIn = true;
-            state.accessToken = action.payload.data;
+            state.signInState.status = "succeeded"
+            state.signInState.message = "sign in succeeded"
+            state.credentials = action.payload.credentials
+            state.isUserLoggedIn = true
+            state.accessToken = action.payload.data
         });
         //REFRESH TOKEN CASES
         builder.addCase(refreshTokenThunk.pending, (state, action) => {
@@ -81,17 +81,17 @@ export const authSlice = createSlice({
 
         builder.addCase(refreshTokenThunk.rejected, (state, action) => {
             state.refreshTokenState.status = "failed";
-            state.refreshTokenState.message = action.error.message!;
-            state.isUserLoggedIn = true;
+            state.refreshTokenState.message = "refresh failed";
+            state.isUserLoggedIn = false
             state.accessToken = null;
             state.credentials = null;
         });
 
         builder.addCase(refreshTokenThunk.fulfilled, (state, action) => {
             state.refreshTokenState.status = "succeeded";
-            state.refreshTokenState.message = action.payload.message;
+            state.refreshTokenState.message = "refresh succeeded";
             state.isUserLoggedIn = true;
-            state.accessToken = action.payload.data;
+            state.accessToken = action.payload.accessToken;
             state.credentials = action.payload.credentials;
         });
     },

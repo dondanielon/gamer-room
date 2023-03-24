@@ -6,7 +6,7 @@ const axios = axiosConfig.instance;
 export async function signInService(credentials: IUserCredentials) {
     try {
         const { data } = await axios.post(
-            "/authentication/sign-in",
+            "/authentication/signin",
             JSON.stringify(credentials)
         );
 
