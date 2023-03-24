@@ -42,6 +42,7 @@ const cookie_parser_1 = __importDefault(require("cookie-parser"));
 const config_1 = require("../database/config");
 const authentication_1 = __importDefault(require("./authentication"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
+const userActions_1 = __importDefault(require("./userActions"));
 dotenv_1.default.config();
 class Server {
     constructor() {
@@ -77,7 +78,9 @@ class Server {
     routers() {
         const router = (0, express_1.Router)();
         const authRouter = new authentication_1.default();
+        const userActionRouter = new userActions_1.default(this.verifyJsonWebToken);
         router.use('/authentication', authRouter.router);
+        router.use('/user-action', userActionRouter.router);
         this.app.use(`${this.path}${this.apiVersion}`, router);
     }
     verifyJsonWebToken(req, res, next) {
