@@ -1,7 +1,7 @@
-import User from "./schemas/user";
-import { ISignUp } from "../types";
+import User from "./user.schema";
+import { ISignup } from "../types/handlers";
 
-export async function createUser(user: ISignUp) {
+export async function createUser(user: ISignup) {
     try {
         const newUser = new User({
             ...user,

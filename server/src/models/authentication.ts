@@ -1,11 +1,14 @@
-import { Router } from "express"
-import { ValidationChain, checkSchema } from "express-validator"
-import { ResultWithContext } from "express-validator/src/chain"
-import User from '../database/user.schema'
+import { Router, NextFunction, Response, Request } from "express"
+import { validationResult, ValidationError } from "express-validator"
+import { ISignin, ISignup, IUser } from "../types/handlers"
+import { createUser, findUserByEmail, findUserWithRefreshToken } from "../database/helpers"
+import { IAuthenticationValidations } from "../types/validations"
+import getValidations from "../validations/authentication"
+import bcrypt from "bcrypt"
+import dotenv from "dotenv"
+import jwt from "jsonwebtoken"
 
-interface IAuthenticationValidations {
-    signupRequest: ValidationChain[] & {run: (req: Request) => Promise<ResultWithContext[]>}
-}
+dotenv.config()
 
 class AuthenticationRouter {
     public router: Router
@@ -13,62 +16,168 @@ class AuthenticationRouter {
 
     constructor() {
         this.router = Router()
-        this.validate = this.setValidations()
+        this.validate = getValidations()
         
         this.buildRoutes()
     }
 
     private buildRoutes() {
-        this.router.post("/signup", this.validate.signupRequest, )
-        this.router.post("/signin")
-        this.router.get("/signout")
-        this.router.get("/refresh")
+        this.router.post("/signup", this.validate.signupRequest, this.signupHandler)
+        this.router.post("/signin", this.signinHandler)
+        this.router.get("/signout", this.signoutHandler)
+        this.router.get("/refresh", this.refreshHandler)
+    }
+// handlers
+    private async signupHandler(req: Request, res: Response, next: NextFunction){
+        try {
+            const errors = validationResult(req).formatWith(
+                ({ msg }: ValidationError) => msg
+            );
+            if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() })
+
+            const body: ISignup = req.body;
+            const encryptedPassword = await AuthenticationRouter.encryptPassword(
+                body.password
+            )
+            await createUser({
+                username: body.username,
+                firstName: body.firstName,
+                lastName: body.lastName,
+                email: body.email,
+                password: encryptedPassword,
+                birthDate: new Date(body.birthDate).toISOString()
+            })
+            // *TODO: send email with url that validates email set by user
+
+            return res.sendStatus(201)
+        } catch (error) {
+            return next(error)
+        }
     }
 
-    private setValidations() {
-        return {
-            signupRequest: checkSchema({
-                username: {
-                    in: "body",
-                    notEmpty: { errorMessage: "username is required", bail: true },
-                    isString: { errorMessage: "invalid input type username", bail: true },
-                    custom: {
-                        bail: true,
-                        options: async (username) => {
-                            const user = await User.findOne({ username: username })
+    private async signoutHandler(req: Request, res: Response, next: NextFunction){
+        try {
+            const cookies = req.cookies;
+            if (!cookies?.refreshToken) return res.sendStatus(400)
             
-                            if (user) throw new Error("username already in use")
-                            return true;
-                        },
-                    },
-                },
-                firstName: {
-                    in: "body",
-                    notEmpty: { errorMessage: "firstName is required", bail: true },
-                    isString: { errorMessage: "invalid input type firstName", bail: true },
-                },
-                lastName: {
-                    in: "body",
-                    notEmpty: { errorMessage: "lastName is required", bail: true },
-                    isString: { errorMessage: "invalid input type lastName", bail: true },
-                },
-                email: {
-                    in: "body",
-                    notEmpty: { errorMessage: "email is required", bail: true },
-                    isString: { errorMessage: "invalid input type email", bail: true },
-                    isEmail: { errorMessage: "invalid email", bail: true },
-                    custom: {
-                        bail: true,
-                        options: async (email) => {
-                            const user = await User.findOne({ email: email })
-            
-                            if (user) throw new Error("email already in use")
-                            return true;
-                        },
-                    },
-                }
+            res.clearCookie("refreshToken", {
+                httpOnly: true,
+                secure: true,
+                sameSite: "none"
             })
+            const refreshToken = cookies.refreshToken;
+            const user = await findUserWithRefreshToken(refreshToken);
+            if (!user) return res.sendStatus(404)
+
+            user.refreshToken = undefined
+            await user.save()
+
+            return res.sendStatus(200)
+        } catch (error) {
+            return next(error);
         }
+    }
+
+    private async signinHandler(req: Request, res: Response, next: NextFunction){
+        try {
+            const body: ISignin = req.body;
+            const user = await findUserByEmail(body.email)
+            if (!user) return res.sendStatus(401)
+
+            const isPasswordValid = await bcrypt.compare(
+                body.password,
+                user.password
+            )
+            if (!isPasswordValid) return res.sendStatus(401)
+
+            const accessToken = jwt.sign(
+                AuthenticationRouter.formatUserToPublic(user.toObject()),
+                process.env.ACCESS_TOKEN_SECRET!,
+                { expiresIn: "365d" }
+            )
+            const refreshToken = jwt.sign(
+                AuthenticationRouter.formatUserToPublic(user.toObject()),
+                process.env.REFRESH_TOKEN_SECRET!,
+                { expiresIn: "365d" }
+            )
+            res.cookie("refreshToken", refreshToken, {
+                httpOnly: true,
+                maxAge: 365 * 24 * 60 * 60 * 1000,
+                secure: true,
+                sameSite: "none",
+            })
+            user.refreshToken = refreshToken;
+            await user.save();
+
+            return res.status(200).json({
+                accessToken: accessToken,
+                credentials: AuthenticationRouter.formatUserToPublic(user.toObject())
+            })     
+        } catch (error) {
+            return next(error);
+        }
+    }
+
+    private async refreshHandler(req: Request, res: Response, next: NextFunction){
+        try {
+            const cookies = req.cookies;
+            if (!cookies?.refreshToken) return res.sendStatus(401)
+        
+            const refreshToken = cookies.refreshToken;
+            const user = await findUserWithRefreshToken(refreshToken);
+            if (!user) {
+                return res.sendStatus(403)
+            }
+            
+            jwt.verify(
+                refreshToken,
+                process.env.REFRESH_TOKEN_SECRET!,
+                async (err: jwt.VerifyErrors | null, decoded: any) => {
+                    if (err || user._id.toString() !== decoded._id) {
+                        user.refreshToken = undefined
+                        await user.save()
+
+                        return res.sendStatus(403)
+                    }
+
+                    const accessToken = jwt.sign(
+                        AuthenticationRouter.formatUserToPublic(user.toObject()),
+                        process.env.ACCESS_TOKEN_SECRET!,
+                        { expiresIn: "365" }
+                    )
+                    return res.status(200).json({
+                        accessToken: accessToken,
+                        credentials: decoded
+                    })     
+                }
+            );
+        } catch (error) {
+            return next(error);
+        }
+    }
+
+// private functions for handlers
+    private static async encryptPassword(password: string) {
+        try {
+            const encryption = await bcrypt.hash(
+                password,
+                parseInt(process.env.BCRYPT_SALT_ROUNDS!)
+            );
+            return encryption;
+        } catch (error) {
+            throw error;
+        }
+    }
+
+    private static formatUserToPublic(user: IUser) {
+        delete user?.password;
+        delete user?.__v;
+        delete user?.createdAt;
+        delete user?.isConfirmed;
+        delete user?.birthDate;
+        delete user?.refreshToken;
+
+        return user;
     }
 }
 

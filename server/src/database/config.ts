@@ -1,7 +1,7 @@
-import mongoose from "mongoose";
-import dotenv from "dotenv";
+import mongoose from "mongoose"
+import dotenv from "dotenv"
 
-dotenv.config();
+dotenv.config()
 
 export async function databaseConnection() {
     try {
@@ -18,6 +18,6 @@ export async function databaseConnection() {
         }
     } catch (error) {
         console.log(error);
-        throw new Error("Error trying to connect to database");
+        throw new Error("Error trying to connect to database")
     }
 }

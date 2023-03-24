@@ -1,12 +1,6 @@
 import { Request } from "express";
 
-export interface IResponse {
-    message: string;
-    data: any;
-    error?: string;
-}
-
-export interface ISignUp {
+export interface ISignup {
     username: string;
     firstName: string;
     lastName: string;
@@ -15,7 +9,7 @@ export interface ISignUp {
     birthDate: string;
 }
 
-export interface ISignIn {
+export interface ISignin {
     email: string;
     password: string;
 }

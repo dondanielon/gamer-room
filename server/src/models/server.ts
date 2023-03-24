@@ -1,8 +1,11 @@
-import express, { Application } from "express"
+import express, { Application, NextFunction, Router, Response, Request } from "express"
 import dotenv from "dotenv"
 import cors from "cors"
 import cookies from "cookie-parser"
 import { databaseConnection } from "../database/config"
+import AuthenticationRouter from "./authentication"
+import jwt from "jsonwebtoken"
+import { ICustomRequest, IRequestUser } from "../types/handlers"
 dotenv.config()
 
 class Server {
@@ -18,7 +21,9 @@ class Server {
         this.apiVersion = "/v1"
 
         this.dbConnection()
-        this.attachMiddlewares()
+        this.middlewares()
+        this.routers()
+        this.errorHandlerMiddleware()
     }
 
     start() {
@@ -35,7 +40,7 @@ class Server {
         }
     }
 
-    private attachMiddlewares() {
+    private middlewares() {
         this.app.use(
             cors({ credentials: true, origin: process.env.CLIENT_BASE_URL! })
         )
@@ -43,8 +48,44 @@ class Server {
         this.app.use(cookies())
     }
 
+    private routers() {
+        const router = Router()
+        const authRouter = new AuthenticationRouter()
+
+        router.use('/authentication', authRouter.router)
+
+        this.app.use(`${this.path}${this.apiVersion}`, router)
+    }
+
+    private verifyJsonWebToken(req: ICustomRequest, res: Response, next: NextFunction) {
+        const authHeader = req.headers["authorization"]
+        if (!authHeader) return res.sendStatus(401)
+
+        const token = authHeader.split(" ")[1];
+        return jwt.verify(
+            token,
+            process.env.ACCESS_TOKEN_SECRET!,
+            (err, decoded) => {
+                if (err) return res.sendStatus(403)
+    
+                req.user = decoded as IRequestUser
+                return next()
+            }
+        );
+    }
+
+    private errorHandlerMiddleware() {
+        this.app.use(
+            (err:Error, _req: Request , res: Response, _next:NextFunction): Response => {
+                console.error(err)
+                if (err.message === 'unknown') console.log(this.verifyJsonWebToken)
+                return res.status(500).json({message: err.message})
+            }
+        )
+    }
+
     private handleInternalError(error: unknown) {
-        console.log(error)
+        console.error(error)
     }
 }
 
