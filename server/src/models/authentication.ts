@@ -22,8 +22,16 @@ class AuthenticationRouter {
     }
 
     private buildRoutes() {
-        this.router.post("/signup", this.validate.signupRequest, this.signupHandler)
-        this.router.post("/signin", this.validate.signinRequest, this.signinHandler)
+        this.router.post(
+            "/signup", 
+            this.validate.signupRequest, 
+            this.signupHandler
+        )
+        this.router.post(
+            "/signin", 
+            this.validate.signinRequest, 
+            this.signinHandler
+        )
         this.router.get("/signout", this.signoutHandler)
         this.router.get("/refresh", this.refreshHandler)
     }
