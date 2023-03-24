@@ -1,4 +1,4 @@
-import { Request } from "express";
+import { Request, Response, NextFunction } from "express";
 
 export interface ISignup {
     username: string;
@@ -41,3 +41,5 @@ export interface IRequestUser {
 export interface ICustomRequest extends Request {
     user?: IRequestUser;
 }
+
+export type AuthMiddleware = (req: ICustomRequest, res: Response, next: NextFunction) => void | Response<any, Record<string, any>>

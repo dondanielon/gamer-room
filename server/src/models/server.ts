@@ -6,6 +6,7 @@ import { databaseConnection } from "../database/config"
 import AuthenticationRouter from "./authentication"
 import jwt from "jsonwebtoken"
 import { ICustomRequest, IRequestUser } from "../types/handlers"
+import UserActionRouter from "./userActions"
 dotenv.config()
 
 class Server {
@@ -51,8 +52,10 @@ class Server {
     private routers() {
         const router = Router()
         const authRouter = new AuthenticationRouter()
+        const userActionRouter = new UserActionRouter(this.verifyJsonWebToken)
 
         router.use('/authentication', authRouter.router)
+        router.use('/user-action', userActionRouter.router)
 
         this.app.use(`${this.path}${this.apiVersion}`, router)
     }
