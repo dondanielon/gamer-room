@@ -39,10 +39,10 @@ class AuthenticationRouter {
     private async signupHandler(req: Request, res: Response, next: NextFunction){
         try {
             const errors = validationResult(req).formatWith(
-                ({ msg }: ValidationError) => msg
-            );
+                ({ msg, value }: ValidationError) => ({ error: msg, value: value })
+            )
             if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() })
-
+            
             const body: ISignup = req.body;
             const encryptedPassword = await AuthenticationRouter.encryptPassword(
                 body.password
