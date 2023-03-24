@@ -12,9 +12,9 @@ export default function getValidations(): IAuthenticationValidations  {
                 custom: {
                     bail: true,
                     options: async (username) => {
-                        const user = await User.findOne({ username: username });
+                        const user = await User.findOne({ username: username })
         
-                        if (user) throw new Error("username already in use");
+                        if (user) throw new Error("username already in use")
                         return true;
                     },
                 },
@@ -37,13 +37,26 @@ export default function getValidations(): IAuthenticationValidations  {
                 custom: {
                     bail: true,
                     options: async (email) => {
-                        const user = await User.findOne({ email: email });
+                        const user = await User.findOne({ email: email })
         
-                        if (user) throw new Error("email already in use");
-                        return true;
-                    },
-                },
+                        if (user) throw new Error("email already in use")
+                        return true
+                    }
+                }
             },
+        }),
+        signinRequest: checkSchema({
+            email: {
+                in: "body",
+                notEmpty: { errorMessage: "email is required", bail: true },
+                isString: { errorMessage: "invalid input type email", bail: true },
+                isEmail: { errorMessage: "invalid email", bail: true }
+            },
+            password: {
+                in: "body",
+                notEmpty: { errorMessage: "password is required", bail: true },
+                isString: { errorMessage: "invalid input type password", bail: true }
+            }
         })
     }
 }
