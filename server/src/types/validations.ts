@@ -5,3 +5,7 @@ export interface IAuthenticationValidations {
     signupRequest: ValidationChain[] & {run: (req: Request) => Promise<ResultWithContext[]>}
     signinRequest: ValidationChain[] & {run: (req: Request) => Promise<ResultWithContext[]>}
 }
+
+export interface IUserActionsValidations {
+    sendFriendRequest: ValidationChain[] & {run: (req: Request) => Promise<ResultWithContext[]>}
+}
