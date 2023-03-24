@@ -6,7 +6,7 @@ import { databaseConnection } from "../database/config"
 import AuthenticationRouter from "./authentication"
 import jwt from "jsonwebtoken"
 import { ICustomRequest, IRequestUser } from "../types/handlers"
-import UserActionRouter from "./userActions"
+import UserActionRouter from "./userAction"
 dotenv.config()
 
 class Server {
