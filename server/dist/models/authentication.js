@@ -126,7 +126,7 @@ class AuthenticationRouter {
                         yield user.save();
                         return res.sendStatus(403);
                     }
-                    const accessToken = jsonwebtoken_1.default.sign(AuthenticationRouter.formatUserToPublic(user.toObject()), process.env.ACCESS_TOKEN_SECRET, { expiresIn: "365" });
+                    const accessToken = jsonwebtoken_1.default.sign(AuthenticationRouter.formatUserToPublic(user.toObject()), process.env.ACCESS_TOKEN_SECRET, { expiresIn: "365d" });
                     return res.status(200).json({
                         accessToken: accessToken,
                         credentials: decoded
