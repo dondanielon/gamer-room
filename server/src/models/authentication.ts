@@ -143,7 +143,7 @@ class AuthenticationRouter {
                     const accessToken = jwt.sign(
                         AuthenticationRouter.formatUserToPublic(user.toObject()),
                         process.env.ACCESS_TOKEN_SECRET!,
-                        { expiresIn: "365" }
+                        { expiresIn: "365d" }
                     )
                     return res.status(200).json({
                         accessToken: accessToken,
