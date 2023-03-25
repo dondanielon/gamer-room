@@ -1,7 +1,7 @@
-import { createSlice, PayloadAction, createAsyncThunk } from "@reduxjs/toolkit";
-import { IAuthInitialState } from "@/types/reducers";
-import { IUserCredentials } from "@/types/services";
-import { refreshTokenService, signInService } from "@/services/authentication";
+import { createSlice, PayloadAction, createAsyncThunk } from "@reduxjs/toolkit"
+import { IAuthInitialState } from "@/types/reducers"
+import { IUserCredentials } from "@/types/services"
+import { refreshTokenService, signInService } from "@/services/authentication"
 
 const initialState: IAuthInitialState = {
     signInState: {
@@ -24,20 +24,20 @@ const initialState: IAuthInitialState = {
     isUserLoggedIn: null,
     accessToken: null,
     redirectAfterSignIn: null,
-};
+}
 
 export const signInThunk = createAsyncThunk(
     "/sing-in",
     async (credentials: IUserCredentials) => {
-        const response = await signInService(credentials);
-        return response;
+        const response = await signInService(credentials)
+        return response
     }
-);
+)
 
 export const refreshTokenThunk = createAsyncThunk("/refresh", async () => {
-    const response = await refreshTokenService();
-    return response;
-});
+    const response = await refreshTokenService()
+    return response
+})
 
 export const authSlice = createSlice({
     name: "auth",
@@ -59,25 +59,25 @@ export const authSlice = createSlice({
         builder.addCase(signInThunk.pending, (state, action) => {
             state.signInState.status = "loading";
             state.signInState.message = null;
-        });
+        })
 
         builder.addCase(signInThunk.rejected, (state, action) => {
             state.signInState.status = "failed"
             state.signInState.message = "signin failed"
-        });
+        })
 
         builder.addCase(signInThunk.fulfilled, (state, action) => {
             state.signInState.status = "succeeded"
             state.signInState.message = "sign in succeeded"
             state.credentials = action.payload.credentials
             state.isUserLoggedIn = true
-            state.accessToken = action.payload.data
-        });
+            state.accessToken = action.payload.accessToken
+        })
         //REFRESH TOKEN CASES
         builder.addCase(refreshTokenThunk.pending, (state, action) => {
             state.refreshTokenState.status = "loading";
             state.refreshTokenState.message = null;
-        });
+        })
 
         builder.addCase(refreshTokenThunk.rejected, (state, action) => {
             state.refreshTokenState.status = "failed";
@@ -85,7 +85,7 @@ export const authSlice = createSlice({
             state.isUserLoggedIn = false
             state.accessToken = null;
             state.credentials = null;
-        });
+        })
 
         builder.addCase(refreshTokenThunk.fulfilled, (state, action) => {
             state.refreshTokenState.status = "succeeded";
@@ -93,9 +93,9 @@ export const authSlice = createSlice({
             state.isUserLoggedIn = true;
             state.accessToken = action.payload.accessToken;
             state.credentials = action.payload.credentials;
-        });
+        })
     },
-});
+})
 
-export const { setIsUserLoggeIn, setRedirectAfterSignIn, setAccessToken } = authSlice.actions;
-export default authSlice.reducer;
+export const { setIsUserLoggeIn, setRedirectAfterSignIn, setAccessToken } = authSlice.actions
+export default authSlice.reducer
