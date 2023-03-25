@@ -35,6 +35,7 @@ export async function findUserById(id: string) {
 
 export async function findUsername(username: string) {
     try {
+        // TODO: limit query results waiting on client connection to set number
         const query = new RegExp(username, 'i')
         const list = await User.find({ username: query }).select({
             lastName: 0,
