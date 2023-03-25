@@ -9,36 +9,36 @@ export async function createUser(user: ISignup) {
             createdAt: new Date(),
         });
 
-        await newUser.save();
+        await newUser.save()
     } catch (error) {
-        throw error;
+        throw error
     }
 }
 
 export async function findUserByEmail(email: string) {
     try {
-        const user = await User.findOne({ email: email });
-        return user;
+        const user = await User.findOne({ email: email })
+        return user
     } catch (error) {
-        throw error;
+        throw error
     }
 }
 
 export async function findUserById(id: string) {
     try {
         const user = await User.findById(id)
-        return user;
+        return user
     } catch (error) {
-        throw error;
+        throw error
     }
 }
 
 export async function findUserWithRefreshToken(refreshToken: string) {
     try {
-        const user = await User.findOne({ refreshToken: refreshToken });
-        return user;
+        const user = await User.findOne({ refreshToken: refreshToken })
+        return user
     } catch (error) {
-        throw error;
+        throw error
     }
 }
 
@@ -52,5 +52,28 @@ export async function createFriendship(sender: string, receiver: string) {
         await friendRequest.save()
     } catch (error) {
        throw error 
+    }
+}
+
+export async function getFriendList(userId: string) {
+    try {
+        const friendList = await Friendship.find({
+            $or: [{ sender: userId }, { receiver: userId }]
+        })
+        return friendList
+    } catch (error) {
+        console.log(error)
+        throw error
+    }
+}
+
+export async function acceptFriendship(userId: string, friendshipId: string) {
+    try {
+        await Friendship.findByIdAndUpdate(friendshipId, {
+            status: "accepted",
+            acceptedAt: new Date()
+        })
+    } catch (error) {
+        throw error
     }
 }

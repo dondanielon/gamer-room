@@ -1,6 +1,6 @@
 import { Router, Response, NextFunction } from "express"
 import { AuthMiddleware, ICustomRequest } from "../types/handlers"
-import { createFriendship } from "../database/helpers"
+import { createFriendship, getFriendList, acceptFriendship } from "../database/helpers"
 import { IUserActionsValidations } from "../types/validations"
 import getValidations from "../validations/userAction"
 import { ValidationError, validationResult } from "express-validator"
@@ -19,14 +19,24 @@ class UserActionRouter {
 
     private buildRoutes() {
         this.router.post(
-            "/send-friend-request/:id", 
+            "/send-friendship/:userId", 
             this.protect, 
-            this.validate.sendFriendRequest, 
-            this.sendFriendRequestHandler
+            this.validate.sendFriendship, 
+            this.sendFriendshipHandler
+        )
+        this.router.get(
+            "/get-friend-list",
+            this.protect,
+            this.getFriendListHandler
+        )
+        this.router.put(
+            "/accept-friendship/:friendshipId",
+            this.protect,
+            this.acceptFriendshipHandler
         )
     }
 
-    private async sendFriendRequestHandler(req: ICustomRequest, res: Response, next: NextFunction) {
+    private async sendFriendshipHandler(req: ICustomRequest, res: Response, next: NextFunction) {
         try {
             const errors = validationResult(req).formatWith(
                 ({ msg, value }: ValidationError) => ({ error: msg, value: value })
@@ -34,12 +44,35 @@ class UserActionRouter {
             if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() })
 
             const senderId = req.user?._id!
-            const receiverId = req.params.id
+            const receiverId = req.params.userId
 
             await createFriendship(senderId, receiverId)
             return res.sendStatus(200)
         } catch (error) {
-            return next()
+            return next(error)
+        }
+    }
+
+    private async getFriendListHandler(req: ICustomRequest, res: Response, next: NextFunction) {
+        try {
+            const id = req.user?._id!
+            const friendList = await getFriendList(id)
+
+            return res.status(200).json(friendList)
+        } catch (error) {
+            return next(error)
+        }
+    }
+
+    private async acceptFriendshipHandler(req: ICustomRequest, res: Response, next: NextFunction) {
+        try {
+            const id = req.user?._id!
+            const friendshipId = req.params.friendshipId
+            await acceptFriendship(id, friendshipId)
+
+            return res.sendStatus(200)
+        } catch (error) {
+            return next(error)
         }
     }
 }

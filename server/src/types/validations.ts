@@ -7,5 +7,5 @@ export interface IAuthenticationValidations {
 }
 
 export interface IUserActionsValidations {
-    sendFriendRequest: ValidationChain[] & {run: (req: Request) => Promise<ResultWithContext[]>}
+    sendFriendship: ValidationChain[] & {run: (req: Request) => Promise<ResultWithContext[]>}
 }

@@ -81,7 +81,6 @@ class Server {
         this.app.use(
             (err:Error, _req: Request , res: Response, _next:NextFunction): Response => {
                 console.error(err)
-                if (err.message === 'unknown') console.log(this.verifyJsonWebToken)
                 return res.status(500).json({message: err.message})
             }
         )
