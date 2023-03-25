@@ -81,3 +81,11 @@ export async function friendshipResponse(friendshipId: string, status: "accepted
         throw error
     }
 }
+
+export async function deleteFriendship(friendshipId: string) {
+    try {
+        await Friendship.findByIdAndDelete(friendshipId)
+    } catch (error) {
+        throw error
+    }
+}
