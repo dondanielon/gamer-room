@@ -6,7 +6,10 @@ export default function getValidations(): IAuthenticationValidations  {
     return {
         signupRequest: checkSchema({
             username: {
+                // TODO: add validation for not allowing special characters in username
                 in: "body",
+                toLowerCase: true,
+                trim: true,
                 notEmpty: { errorMessage: "username is required", bail: true },
                 isString: { errorMessage: "invalid input type username", bail: true },
                 custom: {
@@ -21,16 +24,20 @@ export default function getValidations(): IAuthenticationValidations  {
             },
             firstName: {
                 in: "body",
+                trim: true,
                 notEmpty: { errorMessage: "firstName is required", bail: true },
                 isString: { errorMessage: "invalid input type firstName", bail: true },
             },
             lastName: {
                 in: "body",
+                trim: true,
                 notEmpty: { errorMessage: "lastName is required", bail: true },
                 isString: { errorMessage: "invalid input type lastName", bail: true },
             },
             email: {
                 in: "body",
+                trim: true,
+                normalizeEmail: true,
                 notEmpty: { errorMessage: "email is required", bail: true },
                 isString: { errorMessage: "invalid input type email", bail: true },
                 isEmail: { errorMessage: "invalid email", bail: true },
@@ -43,7 +50,9 @@ export default function getValidations(): IAuthenticationValidations  {
                         return true
                     }
                 }
-            },
+            }
+            // TODO: add validation in password to validate if contains upper case letter, lower case letter, 
+            // number and is at least 8 characters
         }),
         signinRequest: checkSchema({
             email: {
