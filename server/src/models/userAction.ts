@@ -8,6 +8,7 @@ import {
     getFriendList,
     friendshipResponse,
     deleteFriendship,
+    findUsername
 } from "../database/helpers"
 
 class UserActionRouter {
@@ -44,6 +45,12 @@ class UserActionRouter {
             "/delete-friendship/:friendshipId",
             this.protect,
             this.deleteFriendshipHandler
+        )
+        this.router.get(
+            "/find-username",
+            this.protect,
+            this.validate.findUsername,
+            this.findUsernameHandler
         )
     }
 
@@ -103,6 +110,22 @@ class UserActionRouter {
             await deleteFriendship(friendshipId)
 
             return res.sendStatus(200)
+        } catch (error) {
+            return next(error)
+        }
+    }
+
+    private async findUsernameHandler(req: ICustomRequest, res: Response, next: NextFunction) {
+        try {
+            const errors = validationResult(req).formatWith(
+                ({ msg, value }: ValidationError) => ({ error: msg, value: value })
+            )
+            if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() })
+
+            const username = req.query.username as string
+
+            const list = await findUsername(username)
+            return res.status(200).json(list)
         } catch (error) {
             return next(error)
         }

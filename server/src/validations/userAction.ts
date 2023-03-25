@@ -74,6 +74,13 @@ export default function getValidations(): IUserActionsValidations  {
                     }
                 }
             }
+        }),
+        findUsername: checkSchema({
+            username: {
+                in: "query",
+                notEmpty: { errorMessage: "username is required", bail: true },
+                isString: { errorMessage: "invalid input type username", bail: true },
+            }
         })
     }
 }

@@ -33,6 +33,25 @@ export async function findUserById(id: string) {
     }
 }
 
+export async function findUsername(username: string) {
+    try {
+        const query = new RegExp(username, 'i')
+        const list = await User.find({ username: query }).select({
+            lastName: 0,
+            email: 0,
+            password: 0,
+            birthDate: 0,
+            createdAt: 0,
+            isConfirmed: 0,
+            __v: 0,
+            refreshToken: 0
+        }).sort({ username: "asc"})
+        return list
+    } catch (error) {
+        throw error
+    }
+}
+
 export async function findUserWithRefreshToken(refreshToken: string) {
     try {
         const user = await User.findOne({ refreshToken: refreshToken })
