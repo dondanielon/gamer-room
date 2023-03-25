@@ -4,8 +4,8 @@ import { IUserActionsValidations } from "../types/validations";
 
 export default function getValidations(): IUserActionsValidations  {
     return {
-        sendFriendRequest: checkSchema({
-            id: {
+        sendFriendship: checkSchema({
+            userId: {
                 in: "params",
                 custom: {
                     bail: true,
