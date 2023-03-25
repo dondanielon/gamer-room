@@ -44,6 +44,7 @@ class UserActionRouter {
         this.router.delete(
             "/delete-friendship/:friendshipId",
             this.protect,
+            this.validate.deleteFriendship,
             this.deleteFriendshipHandler
         )
         this.router.get(
