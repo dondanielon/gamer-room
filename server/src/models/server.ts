@@ -7,23 +7,30 @@ import AuthenticationRouter from "./authentication"
 import jwt from "jsonwebtoken"
 import { ICustomRequest, IRequestUser } from "../types/handlers"
 import UserActionRouter from "./userAction"
+import { Server as ioServer } from "socket.io"
+import http from "http"
 dotenv.config()
 
 class Server {
     private app: Application
+    private server: http.Server
     private PORT: number
     private path: string
     private apiVersion: string
+    private io: ioServer
 
     constructor() {
         this.app = express()
+        this.server = http.createServer(this.app)
         this.PORT = parseInt(process.env.PORT!) || 8080
         this.path = "/api"
         this.apiVersion = "/v1"
+        this.io = new ioServer(this.server)
 
         this.dbConnection()
         this.middlewares()
         this.routers()
+        this.sockets()
         this.errorHandlerMiddleware()
     }
 
@@ -58,6 +65,17 @@ class Server {
         router.use('/user-action', userActionRouter.router)
 
         this.app.use(`${this.path}${this.apiVersion}`, router)
+    }
+
+    private sockets() {
+        this.io.on('connection', (socket) => {
+            // TODO: logic when user authenticate in client
+            console.log("user connection")
+
+            socket.on('disconnect', () => {
+                console.log('user disconnected')
+            })
+        })
     }
 
     private verifyJsonWebToken(req: ICustomRequest, res: Response, next: NextFunction) {
