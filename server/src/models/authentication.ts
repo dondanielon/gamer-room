@@ -35,7 +35,7 @@ class AuthenticationRouter {
         this.router.get("/signout", this.signoutHandler)
         this.router.get("/refresh", this.refreshHandler)
     }
-// handlers
+
     private async signupHandler(req: Request, res: Response, next: NextFunction){
         try {
             const errors = validationResult(req).formatWith(
@@ -48,14 +48,12 @@ class AuthenticationRouter {
                 body.password
             )
             await createUser({
-                username: body.username,
-                firstName: body.firstName,
-                lastName: body.lastName,
-                email: body.email,
+                ...body,
                 password: encryptedPassword,
                 birthDate: new Date(body.birthDate).toISOString()
+                
             })
-            // *TODO: send email with url that validates email set by user
+            // TODO: send email with url that validates email set by user
 
             return res.sendStatus(201)
         } catch (error) {
@@ -164,7 +162,6 @@ class AuthenticationRouter {
         }
     }
 
-// private functions for handlers
     private static async encryptPassword(password: string) {
         try {
             const encryption = await bcrypt.hash(
