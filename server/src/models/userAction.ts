@@ -1,6 +1,6 @@
 import { Router, Response, NextFunction } from "express"
 import { AuthMiddleware, ICustomRequest } from "../types/handlers"
-import { createFriendship, getFriendList, acceptFriendship } from "../database/helpers"
+import { createFriendship, getFriendList, friendshipResponse } from "../database/helpers"
 import { IUserActionsValidations } from "../types/validations"
 import getValidations from "../validations/userAction"
 import { ValidationError, validationResult } from "express-validator"
@@ -30,10 +30,10 @@ class UserActionRouter {
             this.getFriendListHandler
         )
         this.router.put(
-            "/accept-friendship/:friendshipId",
+            "/friendship-response/:friendshipId",
             this.protect,
-            this.validate.acceptFriendship,
-            this.acceptFriendshipHandler
+            this.validate.friendshipResponse,
+            this.friendshipResponseHandler
         )
     }
 
@@ -65,15 +65,16 @@ class UserActionRouter {
         }
     }
 
-    private async acceptFriendshipHandler(req: ICustomRequest, res: Response, next: NextFunction) {
+    private async friendshipResponseHandler(req: ICustomRequest, res: Response, next: NextFunction) {
         try {
             const errors = validationResult(req).formatWith(
                 ({ msg, value }: ValidationError) => ({ error: msg, value: value })
             )
             if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() })
-            
+
             const friendshipId = req.params.friendshipId
-            await acceptFriendship(friendshipId)
+            const status = req.body.status
+            await friendshipResponse(friendshipId, status)
 
             return res.sendStatus(200)
         } catch (error) {

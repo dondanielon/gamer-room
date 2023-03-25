@@ -6,7 +6,7 @@ const Friendship = mongoose.model(
     new Schema({
         sender: { type: Schema.Types.ObjectId, required: true, index: true },
         receiver: { type: Schema.Types.ObjectId, required: true, index: true },
-        status: { type: String, required: true, enum: ["pending" || "accepted" || "declined"], default: "pending" },
+        status: { type: String, required: true, enum: ["pending" || "accepted" || "rejected"], default: "pending" },
         createdAt: { type: Date, required: true },
         acceptedAt: { type: Date }
     })

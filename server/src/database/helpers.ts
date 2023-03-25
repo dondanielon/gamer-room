@@ -67,12 +67,16 @@ export async function getFriendList(userId: string) {
     }
 }
 
-export async function acceptFriendship(friendshipId: string) {
+export async function friendshipResponse(friendshipId: string, status: "accepted" | "rejected") {
     try {
-        await Friendship.findByIdAndUpdate(friendshipId, {
-            status: "accepted",
-            acceptedAt: new Date()
-        })
+        if (status === "accepted") {
+            await Friendship.findByIdAndUpdate(friendshipId, {
+                status: status,
+                acceptedAt: new Date()
+            })
+        } else {
+            await Friendship.findByIdAndDelete(friendshipId)
+        }  
     } catch (error) {
         throw error
     }

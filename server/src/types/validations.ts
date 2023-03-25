@@ -8,5 +8,5 @@ export interface IAuthenticationValidations {
 
 export interface IUserActionsValidations {
     sendFriendship: ValidationChain[] & {run: (req: Request) => Promise<ResultWithContext[]>}
-    acceptFriendship: ValidationChain[] & {run: (req: Request) => Promise<ResultWithContext[]>}
+    friendshipResponse: ValidationChain[] & {run: (req: Request) => Promise<ResultWithContext[]>}
 }

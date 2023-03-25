@@ -21,7 +21,13 @@ export default function getValidations(): IUserActionsValidations  {
                 }
             }
         }),
-        acceptFriendship: checkSchema({
+        friendshipResponse: checkSchema({
+            status: {
+                in: "body",
+                notEmpty: { errorMessage: "status is required", bail: true },
+                isString: { errorMessage: "invalid input type status", bail: true },
+                matches: { errorMessage: "invalid status value", bail: true, options: /\b(?:accepted|rejected)\b/},
+            },
             friendshipId: {
                 in: "params",
                 custom: {
@@ -32,6 +38,7 @@ export default function getValidations(): IUserActionsValidations  {
                             if (!friendship) throw new Error("invalid friendship id")
 
                             if(friendship.receiver.toString() !== req.user._id || friendship.status !== "pending") {
+                                console.log("enter")
                                 throw new Error("you cannot accept friendship")
                             }
                             return true
