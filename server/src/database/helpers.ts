@@ -67,7 +67,7 @@ export async function getFriendList(userId: string) {
     }
 }
 
-export async function acceptFriendship(userId: string, friendshipId: string) {
+export async function acceptFriendship(friendshipId: string) {
     try {
         await Friendship.findByIdAndUpdate(friendshipId, {
             status: "accepted",

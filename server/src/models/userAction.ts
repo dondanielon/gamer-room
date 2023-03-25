@@ -32,6 +32,7 @@ class UserActionRouter {
         this.router.put(
             "/accept-friendship/:friendshipId",
             this.protect,
+            this.validate.acceptFriendship,
             this.acceptFriendshipHandler
         )
     }
@@ -66,9 +67,13 @@ class UserActionRouter {
 
     private async acceptFriendshipHandler(req: ICustomRequest, res: Response, next: NextFunction) {
         try {
-            const id = req.user?._id!
+            const errors = validationResult(req).formatWith(
+                ({ msg, value }: ValidationError) => ({ error: msg, value: value })
+            )
+            if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() })
+            
             const friendshipId = req.params.friendshipId
-            await acceptFriendship(id, friendshipId)
+            await acceptFriendship(friendshipId)
 
             return res.sendStatus(200)
         } catch (error) {
