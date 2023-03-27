@@ -43,3 +43,14 @@ export interface ICustomRequest extends Request {
 }
 
 export type AuthMiddleware = (req: ICustomRequest, res: Response, next: NextFunction) => void | Response<any, Record<string, any>>
+
+interface LobbyConfig {
+    gameMode: string
+    hostGamerId: string
+    hostPlatform: "PS" | "XBOX" | "PC"
+}
+
+export interface ILobbySettings {
+    gameId: string
+    config: LobbyConfig
+}
