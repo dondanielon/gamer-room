@@ -1,20 +1,25 @@
 import { Server } from "socket.io"
 import http from "http"
+import { ILobbySettings } from "../types/handlers"
 
 class SocketConfiguration {
     private io: Server
-    private connections: { [socketId: string]: string }
+    private connections: any
+    private lobbiesPerGame: any
 
     constructor(server: http.Server, clientURL: string) {
         this.io = new Server(server, { cors: { origin: clientURL } })
         this.connections = {}
+        this.lobbiesPerGame = {}
+
         this.main()
     }
 
     private main() {
         this.io.on('connection', (socket) => {
-            console.log(`user connected: ${socket.id}`)
-            this.io.emit("connection")
+            socket.emit("connection")
+            // authenticate connection to save connected user socket id as this.connections property
+            // with user _id as value
             socket.on("set-credentials", (credentials: string) => {
                 this.connections["$." + socket.id] = credentials 
 
@@ -24,22 +29,19 @@ class SocketConfiguration {
                     console.log(this.connections)
                 })
             })
+            // socket to manage lobbies posts
+            socket.on("post-lobby", (lobbySettings: ILobbySettings ) => {
+                this.lobbiesPerGame[lobbySettings.gameId][socket.id] = lobbySettings.config
+                socket.emit("refresh-lobbies")
+            })
 
             
-
-            //SocketConfiguration.rooms(socket)
-
+            // delete user from this.connections 
             socket.on('disconnect', () => {
                 delete this.connections["$." + socket.id]
             })
         })
     }
-
-    // private static rooms(_socket: Socket) {
-    //     // socket.on("get-count", () => {
-    //     //     socket.emit("send-count", connections)
-    //     // })
-    // }
 }
 
 export default SocketConfiguration
