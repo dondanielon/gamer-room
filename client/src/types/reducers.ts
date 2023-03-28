@@ -1,3 +1,5 @@
+import { Socket } from "socket.io-client"
+
 export interface RequestState  {
     status: "idle" | "loading" | "succeeded" | "failed"
     message: null | string
@@ -22,4 +24,5 @@ export interface IAuthInitialState {
     isUserLoggedIn: null | boolean
     accessToken: null | string
     redirectAfterSignIn: string | null
+    isSocketConnected: boolean
 }

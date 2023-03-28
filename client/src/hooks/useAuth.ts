@@ -2,6 +2,7 @@ import {
     setRedirectAfterSignIn,
     setIsUserLoggeIn,
     setAccessToken,
+    setIsSocketConnected
 } from "@/redux/reducers/auth";
 import { RootState } from "@/redux/store";
 import { IUserCredentials } from "@/types/services";
@@ -18,7 +19,12 @@ export default function useAuth() {
         redirectAfterSignIn,
         accessToken,
         credentials,
+        isSocketConnected
     } = useSelector(({ auth }: RootState) => auth);
+
+    const setSocketStatus = (status: boolean) => {
+        return dispatch(setIsSocketConnected(status))
+    }
 
     const setAuthStatus = (status: boolean) => {
         return dispatch(setIsUserLoggeIn(status));
@@ -33,11 +39,11 @@ export default function useAuth() {
     };
 
     const signIn = (credentials: IUserCredentials) => {
-        return dispatch(signInThunk(credentials));
+        return dispatch(signInThunk(credentials))
     };
 
     const refreshToken = () => {
-        return dispatch(refreshTokenThunk());
+        return dispatch(refreshTokenThunk())
     };
 
     return {
@@ -53,5 +59,7 @@ export default function useAuth() {
         signIn,
         refreshToken,
         credentials,
-    };
+        isSocketConnected,
+        setSocketStatus
+    }
 }

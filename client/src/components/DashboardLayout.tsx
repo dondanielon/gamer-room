@@ -12,7 +12,7 @@ export default function DashboardLayout(props: LayoutProps) {
             }}
         >
             <DashboardMenu />
-            <section>{props.children}</section>
+            <section className={style.children}>{props.children}</section>
         </main>
     );
 }

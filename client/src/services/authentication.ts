@@ -1,7 +1,7 @@
-import { axiosConfig } from "@/helpers/config";
+import axiosInstance from "./config";
 import { IUserCredentials } from "@/types/services";
 
-const axios = axiosConfig.instance;
+const axios = axiosInstance;
 
 export async function signInService(credentials: IUserCredentials) {
     try {

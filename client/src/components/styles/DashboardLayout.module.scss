@@ -4,7 +4,13 @@
     position: relative;
     display: flex;
     width: 100vw;
-    height: 100vh;
+    height: 100%;
     background-color: $background-color;
     color: $input-text-color;
+}
+
+.children {
+    margin-left: 320px;
+    width: calc(100% - 320px);
+    padding: 80px 200px;
 }
