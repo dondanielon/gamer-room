@@ -81,6 +81,14 @@ export default function getValidations(): IUserActionsValidations  {
                 notEmpty: { errorMessage: "username is required", bail: true },
                 isString: { errorMessage: "invalid input type username", bail: true },
             }
+        }),
+        updateProfileImageUrl: checkSchema({
+            profileImageUrl: {
+                in: "body",
+                notEmpty: { errorMessage: "profileImageUrl is required", bail: true },
+                isString: { errorMessage: "invalid input type profileImageUrl", bail: true },
+                isURL: { errorMessage: "invalid url", bail: true }
+            }
         })
     }
 }

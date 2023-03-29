@@ -11,4 +11,5 @@ export interface IUserActionsValidations {
     friendshipResponse: ValidationChain[] & {run: (req: Request) => Promise<ResultWithContext[]>}
     deleteFriendship: ValidationChain[] & {run: (req: Request) => Promise<ResultWithContext[]>}
     findUsername: ValidationChain[] & {run: (req: Request) => Promise<ResultWithContext[]>}
+    updateProfileImageUrl: ValidationChain[] & {run: (req: Request) => Promise<ResultWithContext[]>}
 }
