@@ -8,7 +8,8 @@ import {
     getFriendList,
     friendshipResponse,
     deleteFriendship,
-    findUsername
+    findUsername,
+    updateProfileImageUrl
 } from "../database/helpers"
 
 class UserActionRouter {
@@ -52,6 +53,12 @@ class UserActionRouter {
             this.protect,
             this.validate.findUsername,
             this.findUsernameHandler
+        )
+        this.router.put(
+            "/update-profile-image",
+            this.protect, 
+            this.validate.updateProfileImageUrl,
+            this.updateProfileImageUrlHandler
         )
     }
 
@@ -127,6 +134,23 @@ class UserActionRouter {
 
             const list = await findUsername(username)
             return res.status(200).json(list)
+        } catch (error) {
+            return next(error)
+        }
+    }
+
+    private async updateProfileImageUrlHandler(req: ICustomRequest, res: Response, next: NextFunction) {
+        try {
+            const errors = validationResult(req).formatWith(
+                ({ msg, value }: ValidationError) => ({ error: msg, value: value })
+            )
+            if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() })
+            
+            const id = req.user?._id!
+            const profileImageUrl = req.query.profileImageUrl as string
+            await updateProfileImageUrl(profileImageUrl, id)
+
+            return res.sendStatus(200)
         } catch (error) {
             return next(error)
         }
