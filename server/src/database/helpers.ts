@@ -109,3 +109,11 @@ export async function deleteFriendship(friendshipId: string) {
         throw error
     }
 }
+
+export async function updateProfileImage(profileImage: string, userId: string) {
+    try {
+        await User.findByIdAndUpdate(userId, { profileImage: profileImage })
+    } catch (error) {
+        throw error
+    }
+}
