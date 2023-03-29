@@ -110,7 +110,7 @@ export async function deleteFriendship(friendshipId: string) {
     }
 }
 
-export async function updateProfileImage(profileImage: string, userId: string) {
+export async function updateProfileImageUrl(profileImage: string, userId: string) {
     try {
         await User.findByIdAndUpdate(userId, { profileImage: profileImage })
     } catch (error) {
