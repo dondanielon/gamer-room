@@ -12,7 +12,8 @@ const User = mongoose.model(
         birthDate: { type: Date, required: true },
         createdAt: { type: Date, required: true },
         isConfirmed: { type: Boolean, required: true, default: false },
-        profileImage: { type: String, required: true }, 
+        profileImage: { type: String, required: true },
+        socials: { type: Schema.Types.ObjectId, ref: "userSocials" }, 
         refreshToken: { 
             type: String, 
             select: false, 
