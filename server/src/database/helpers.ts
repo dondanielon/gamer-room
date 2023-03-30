@@ -1,6 +1,7 @@
-import User from "./user.schema";
-import { ISignup } from "../types/handlers";
-import Friendship from "./friendship.schema";
+import User from "./user.schema"
+import { ISignup } from "../types/handlers"
+import Friendship from "./friendship.schema"
+import UserSocials from "./userSocials.schema";
 
 export async function createUser(user: ISignup) {
     try {
@@ -10,6 +11,20 @@ export async function createUser(user: ISignup) {
         });
 
         await newUser.save()
+
+        return newUser._id.toString()
+    } catch (error) {
+        throw error
+    }
+}
+
+export async function createUserSocials(userId: string) {
+    try {
+        const newSocials = new UserSocials({
+            userId: userId
+        })
+
+        await newSocials.save()
     } catch (error) {
         throw error
     }
