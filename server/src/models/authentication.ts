@@ -1,7 +1,7 @@
 import { Router, NextFunction, Response, Request } from "express"
 import { validationResult, ValidationError } from "express-validator"
 import { ISignin, ISignup, IUser } from "../types/handlers"
-import { createUser, findUserByEmail, findUserWithRefreshToken } from "../database/helpers"
+import { createUser, findUserByEmail, findUserWithRefreshToken, createUserSocials } from "../database/helpers"
 import { IAuthenticationValidations } from "../types/validations"
 import getValidations from "../validations/authentication"
 import bcrypt from "bcrypt"
@@ -47,12 +47,14 @@ class AuthenticationRouter {
             const encryptedPassword = await AuthenticationRouter.encryptPassword(
                 body.password
             )
-            await createUser({
+            const userId = await createUser({
                 ...body,
                 password: encryptedPassword,
                 birthDate: new Date(body.birthDate).toISOString()
                 
             })
+
+            await createUserSocials(userId)
             // TODO: send email with url that validates email set by user
 
             return res.sendStatus(201)
