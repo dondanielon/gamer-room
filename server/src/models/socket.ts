@@ -42,6 +42,11 @@ class SocketConfiguration {
             })
         })
     }
+    
+    print() {
+        console.log(this.connections)
+        console.log(this.lobbiesPerGame)
+    }
 }
 
 export default SocketConfiguration

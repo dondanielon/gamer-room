@@ -17,6 +17,7 @@ class Server {
     private PORT: number
     private path: string
     private apiVersion: string
+    private socketConfig: SocketConfiguration
 
     constructor() {
         this.app = express()
@@ -24,7 +25,7 @@ class Server {
         this.PORT = parseInt(process.env.PORT!) || 8080
         this.path = "/api"
         this.apiVersion = "/v1"
-        new SocketConfiguration(this.server, process.env.CLIENT_BASE_URL!)
+        this.socketConfig = new SocketConfiguration(this.server, process.env.CLIENT_BASE_URL!)
 
         this.dbConnection()
         this.middlewares()
@@ -38,11 +39,15 @@ class Server {
         })
     }
 
+    printSocketConfig() {
+        this.socketConfig.print()
+    }
+
     private async dbConnection() {
         try {
             await databaseConnection()
         } catch (error) {
-            this.handleInternalError(error)
+            Server.handleInternalError(error)
         }
     }
 
@@ -91,7 +96,7 @@ class Server {
         )
     }
 
-    private handleInternalError(error: unknown) {
+    private static handleInternalError(error: unknown) {
         console.error(error)
     }
 }
