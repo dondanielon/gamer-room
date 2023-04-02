@@ -7,7 +7,7 @@
     "start": "node dist/index.js",
     "dev": "ts-node-dev src/index.ts",
     "build": "tsc",
-    "feature": "ts-node-dev src/models/scraper.ts"
+    "feature": "ts-node-dev src/models/nflScraper.ts"
   },
   "author": "",
   "license": "ISC",
