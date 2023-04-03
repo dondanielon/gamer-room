@@ -80,3 +80,10 @@ export interface SetTeamsOffenseI {
         offense: NFLStatsOffenseDefenseI
     }
 }
+
+export interface SetTeamsDefenseI {
+    [key: string]: {
+        name: string
+        defense: NFLStatsOffenseDefenseI
+    }
+}
