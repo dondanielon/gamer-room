@@ -88,3 +88,10 @@ export interface SetSpecialTeamsI {
         specialTeams: NFLSpecialTeamsI
     }
 }
+
+export interface SetTurnoversI {
+    [key: string]: {
+        name: string
+        turnovers: NFLTurnoversI
+    }
+}
