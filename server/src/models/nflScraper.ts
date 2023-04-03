@@ -1,22 +1,21 @@
 import axios, { AxiosInstance } from "axios"
 import * as cheerio from "cheerio"
-import { NFLTeamI, SetTeamsDefenseI, SetTeamsOffenseI, SetTeamsStandingsI } from "../types/scrapers"
+import { NFLTeamI, SetSpecialTeamsI, SetTeamsDefenseI, SetTeamsOffenseI, SetTeamsStandingsI } from "../types/scrapers"
 
 class NFLScraper {
     private TEAM_STANDINGS_URL: string
     private TEAM_OFFENSE_STATS_URL: string
     private TEAM_DEFENSE_STATS_URL: string
-    // private TEAM_SPECIAL_TEAMS_STATS_URL: string
+    private TEAM_SPECIAL_TEAMS_STATS_URL: string
     // private TEAM_TURNOVERS_STATS_URL: string
     private axiosInstance: AxiosInstance
     private teams: Array<NFLTeamI>
-
 
     constructor() {
         this.TEAM_STANDINGS_URL = "https://www.espn.com/nfl/standings/_/group/league"
         this.TEAM_OFFENSE_STATS_URL = "https://www.espn.com/nfl/stats/team/_/view/offense"
         this.TEAM_DEFENSE_STATS_URL = "https://www.espn.com/nfl/stats/team/_/view/defense"
-        // this.TEAM_SPECIAL_TEAMS_STATS_URL = "https://www.espn.com/nfl/stats/team/_/view/special"
+        this.TEAM_SPECIAL_TEAMS_STATS_URL = "https://www.espn.com/nfl/stats/team/_/view/special"
         // this.TEAM_TURNOVERS_STATS_URL = "https://www.espn.com/nfl/stats/team/_/view/turnovers"
         this.axiosInstance = axios.create({
             headers: { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36" },
@@ -32,23 +31,66 @@ class NFLScraper {
     async scrap() {
         try {
             const start = Date.now()
-            // const teamStandings = await this.setTeamsStandings()
-            // const teamsOffense = await this.setTeamOffenseStats()
-            // if (teamStandings && teamsOffense) console.log(teamStandings)
-            
-            const [standings, offenseStats, defenseStats] = await Promise.all([
+            const [standings, offenseStats, defenseStats, specialTeamsStats] = await Promise.all([
                 this.setTeamsStandings(),
                 this.setTeamsOffenseStats(),
-                this.setTeamsDefenseStats()
+                this.setTeamsDefenseStats(),
+                this.setSpecialTeamsStats()
             ])
 
-            if (standings && offenseStats && defenseStats) console.log(defenseStats)
+            if (standings && offenseStats && defenseStats) console.log(specialTeamsStats)
             const end = Date.now()
             console.log(`Scraping took ${end - start}ms`)
         } catch (error) {
             console.log(error)
             throw error
         }
+    }
+
+    private async setSpecialTeamsStats() {
+        const axiosResponse = await this.axiosInstance.request({
+            method: "GET",
+            url: this.TEAM_SPECIAL_TEAMS_STATS_URL
+        })
+        const data: SetSpecialTeamsI = {}
+        const $ = cheerio.load(axiosResponse.data)
+
+        $("[data-idx]").each((_index, element) => {
+            const htmlIndex = element.attribs["data-idx"]
+            const statsArr: Array<string> = []
+            const teamName = $(element).find(".Image").attr("title")
+
+            $(element).find(".Table__TD").each((_idx, elm) => {
+                const tagText = $(elm).find("div").text()
+                const stat = tagText.includes(",") ? tagText.replace(",", "") : tagText
+                statsArr.push(stat)
+            })
+            statsArr.shift()
+
+            if (teamName) {
+                data[htmlIndex] = {
+                    ...data[htmlIndex],
+                    name: teamName
+                } 
+            }
+
+            if (statsArr.length === 11) {
+                const specialTeamsProperties = [
+                    "kickAttempts", "kickTotalYards", "averageYardsPerKick", "kickLong", "kickTouchdowns", 
+                    "puntAttempts", "puntTotalYards", "averageYardsPerPunt", "puntLong", "puntTouchdowns", "fairCatches"
+                ]
+                specialTeamsProperties.forEach((item, index) => {
+                    data[htmlIndex] = {
+                        ...data[htmlIndex],
+                        specialTeams: {
+                            ...data[htmlIndex].specialTeams,
+                            [item]: parseFloat(statsArr[index])  
+                        }
+                    }
+                })
+            }
+        })
+        return Object.values(data)
     }
 
     private async setTeamsDefenseStats() {
@@ -65,8 +107,8 @@ class NFLScraper {
             const teamName = $(element).find(".Image").attr("title")
 
             $(element).find(".Table__TD").each((_idx, elm) => {
-                let stat = $(elm).find("div").text()
-                stat = stat.includes(",") ? stat.replace(",", "") : stat
+                const tagText = $(elm).find("div").text()
+                const stat = tagText.includes(",") ? tagText.replace(",", "") : tagText
                 statsArr.push(stat)
             })
             statsArr.shift()
