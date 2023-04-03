@@ -25,26 +25,27 @@ export interface NFLStatsOffenseDefenseI {
 }
 
 interface NFLSpecialTeamsI {
-    totalYards: number
-    long: number
-    touchdowns: number
-}
-
-interface NFLSpecialTeamsKickoffsI extends NFLSpecialTeamsI {
+    kickTotalYards: number
+    kickLong: number
+    kickTouchdowns: number
     kickAttempts: number
     averageYardsPerKick: number
-}
-
-interface NFLSpecialTeamsPuntsI extends NFLSpecialTeamsI {
+    puntTotalYards: number
+    puntLong: number
+    puntTouchdowns: number
     puntAttempts: number
     averageYardsPerPunt: number
     fairCatches: number
 }
 
 interface NFLTurnoversI {
-    interceptions: number
-    fumbles: number
-    total: number
+    ratio: number
+    takeawayInterceptions: number
+    takeawayFumbles: number
+    takeawayTotal: number
+    giveawayInterceptions: number
+    giveawayFumbles: number
+    giveawayTotal: number
 }
 
 export interface NFLTeamI {
@@ -54,15 +55,8 @@ export interface NFLTeamI {
     stats: {
         offense: NFLStatsOffenseDefenseI
         defense: NFLStatsOffenseDefenseI
-        specialTeams: {
-            kickoffs: NFLSpecialTeamsKickoffsI
-            punts: NFLSpecialTeamsPuntsI
-        }
-        turnovers: {
-            ratio: number
-            takeaways: NFLTurnoversI
-            giveaways: NFLTurnoversI
-        }
+        specialTeams: NFLSpecialTeamsI
+        turnovers: NFLTurnoversI
     }
 }
 
@@ -85,5 +79,12 @@ export interface SetTeamsDefenseI {
     [key: string]: {
         name: string
         defense: NFLStatsOffenseDefenseI
+    }
+}
+
+export interface SetSpecialTeamsI {
+    [key: string]: {
+        name: string
+        specialTeams: NFLSpecialTeamsI
     }
 }
