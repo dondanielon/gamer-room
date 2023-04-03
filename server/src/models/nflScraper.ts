@@ -1,10 +1,6 @@
 import axios, { AxiosInstance } from "axios"
 import * as cheerio from "cheerio"
-import { NFLTeamI, SetTeamsOffenseI, SetTeamsStandingsI } from "../types/scrapers"
-
-// const teamsInLeague = [
-
-// ]
+import { NFLTeamI, SetTeamsDefenseI, SetTeamsOffenseI, SetTeamsStandingsI } from "../types/scrapers"
 
 class NFLScraper {
     private TEAM_STANDINGS_URL: string
@@ -40,10 +36,13 @@ class NFLScraper {
             // const teamsOffense = await this.setTeamOffenseStats()
             // if (teamStandings && teamsOffense) console.log(teamStandings)
             
-            const [standings, offense] = await Promise.all([
+            const [standings, offenseStats, defenseStats] = await Promise.all([
                 this.setTeamsStandings(),
-                this.setTeamsOffenseStats()
+                this.setTeamsOffenseStats(),
+                this.setTeamsDefenseStats()
             ])
+
+            if (standings && offenseStats && defenseStats) console.log(defenseStats)
             const end = Date.now()
             console.log(`Scraping took ${end - start}ms`)
         } catch (error) {
@@ -51,53 +50,53 @@ class NFLScraper {
             throw error
         }
     }
-    
-    // private async setTeamsDefenseStats() {
-    //     const axiosResponse = await this.axiosInstance.request({
-    //         method: "GET",
-    //         url: this.TEAM_DEFENSE_STATS_URL,
-    //     })
-    //     const data: SetTeamsOffenseI = {}
-    //     const $ = cheerio.load(axiosResponse.data)
 
-    //     $("[data-idx]").each((_index, element) => {
-    //         const htmlIndex = element.attribs["data-idx"]
-    //         const statsArr: Array<string> = []
-    //         const teamName = $(element).find(".Image").attr("title")
+    private async setTeamsDefenseStats() {
+        const axiosResponse = await this.axiosInstance.request({
+            method: "GET",
+            url: this.TEAM_DEFENSE_STATS_URL,
+        })
+        const data: SetTeamsDefenseI = {}
+        const $ = cheerio.load(axiosResponse.data)
 
-    //         $(element).find(".Table__TD").each((_idx, elm) => {
-    //             let stat = $(elm).find("div").text()
-    //             stat = stat.includes(",") ? stat.replace(",", "") : stat
-    //             statsArr.push(stat)
-    //         })
-    //         statsArr.shift()
+        $("[data-idx]").each((_index, element) => {
+            const htmlIndex = element.attribs["data-idx"]
+            const statsArr: Array<string> = []
+            const teamName = $(element).find(".Image").attr("title")
+
+            $(element).find(".Table__TD").each((_idx, elm) => {
+                let stat = $(elm).find("div").text()
+                stat = stat.includes(",") ? stat.replace(",", "") : stat
+                statsArr.push(stat)
+            })
+            statsArr.shift()
             
-    //         if (teamName) {
-    //             data[htmlIndex] = {
-    //                 ...data[htmlIndex],
-    //                 name: teamName
-    //             }
-    //         }
+            if (teamName) {
+                data[htmlIndex] = {
+                    ...data[htmlIndex],
+                    name: teamName
+                }
+            }
 
-    //         if (statsArr.length === 8) {
-    //             const offenseProperties = [
-    //                 "totalYards", "yardsPerGame", "totalPassingYards", "passingYardsPerGame",
-    //                 "totalRushingYards", "rushingYardsPerGame", "totalPoints" ,"pointsPerGame"
-    //             ]
+            if (statsArr.length === 8) {
+                const offenseProperties = [
+                    "totalYards", "yardsPerGame", "totalPassingYards", "passingYardsPerGame",
+                    "totalRushingYards", "rushingYardsPerGame", "totalPoints" ,"pointsPerGame"
+                ]
 
-    //             offenseProperties.forEach((item, index) => {
-    //                 data[htmlIndex] = {
-    //                     ...data[htmlIndex],
-    //                     offense: {
-    //                         ...data[htmlIndex].offense,
-    //                         [item]: parseFloat(statsArr[index]) 
-    //                     }
-    //                 }
-    //             })
-    //         }
-    //     })
-    //     return Object.values(data)
-    // }
+                offenseProperties.forEach((item, index) => {
+                    data[htmlIndex] = {
+                        ...data[htmlIndex],
+                        defense: {
+                            ...data[htmlIndex].defense,
+                            [item]: parseFloat(statsArr[index]) 
+                        }
+                    }
+                })
+            }
+        })
+        return Object.values(data)
+    }
 
     private async setTeamsOffenseStats() {
         const axiosResponse = await this.axiosInstance.request({
