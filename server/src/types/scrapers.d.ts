@@ -3,7 +3,7 @@ export interface NFLTeamStandingsI {
     losses: number
     ties: number
     winPercentage: number
-    localRecord: string
+    homeRecord: string
     visitorRecord: string
     divisionRecord: string
     conferenceRecord: string
@@ -11,6 +11,7 @@ export interface NFLTeamStandingsI {
     pointsAgainst: number
     pointsDifferential: number
     currentStreak: string
+    overallRecord: string
 }
 
 export interface NFLStatsOffenseDefenseI {
@@ -93,5 +94,19 @@ export interface SetTurnoversI {
     [key: string]: {
         name: string
         turnovers: NFLTurnoversI
+    }
+}
+
+export interface SetNFLTeamsI {
+    [key: string]: {
+        name: string
+        code: string
+        standings: NFLTeamStandingsI,
+        stats: {
+            offense: NFLStatsOffenseDefenseI
+            defense: NFLStatsOffenseDefenseI
+            specialTeams: NFLSpecialTeamsI
+            turnovers: NFLTurnoversI
+        }
     }
 }
